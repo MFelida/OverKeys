@@ -157,6 +157,7 @@ class _MainAppState extends State<MainApp> with TrayListener, WindowListener {
   bool _use6ColLayout = false;
   bool _kanataEnabled = false;
   bool _keyboardFollowsMouse = false;
+  bool _hideOnDefaultLayer = false;
   Timer? _mouseCheckTimer;
 
   // Services
@@ -322,6 +323,7 @@ class _MainAppState extends State<MainApp> with TrayListener, WindowListener {
       _use6ColLayout = prefs['use6ColLayout'];
       _kanataEnabled = prefs['kanataEnabled'];
       _keyboardFollowsMouse = prefs['keyboardFollowsMouse'];
+      _hideOnDefaultLayer = prefs['hideOnDefaultLayer'];
     });
   }
 
@@ -413,6 +415,7 @@ class _MainAppState extends State<MainApp> with TrayListener, WindowListener {
       'use6ColLayout': _use6ColLayout,
       'kanataEnabled': _kanataEnabled,
       'keyboardFollowsMouse': _keyboardFollowsMouse,
+      'hideOnDefaultLayer': _hideOnDefaultLayer,
     };
 
     await _prefsService.saveAllPreferences(prefs);
@@ -455,7 +458,19 @@ class _MainAppState extends State<MainApp> with TrayListener, WindowListener {
         _keyboardLayout = newLayout;
         _updateAutoHideBasedOnLayer(isDefaultUserLayout);
       });
-      _fadeIn();
+      
+      // Handle hide on default layer functionality
+      if (isDefaultUserLayout && _hideOnDefaultLayer && _isWindowVisible) {
+        // Hide immediately when switching to default layer
+        setState(() {
+          _isWindowVisible = false;
+          _opacity = 0.0;
+        });
+        _autoHideTimer?.cancel();
+      } else {
+        // Show when switching to non-default layer
+        _fadeIn();
+      }
     };
   }
 
@@ -573,8 +588,37 @@ class _MainAppState extends State<MainApp> with TrayListener, WindowListener {
     });
   }
 
+  bool _isOnDefaultLayer() {
+    // If hideOnDefaultLayer is disabled, always allow showing
+    if (!_hideOnDefaultLayer) return false;
+    
+    // If advanced settings are not enabled, we're always on default
+    if (!_advancedSettingsEnabled) return true;
+    
+    // For Kanata or user layout mode
+    if (_kanataEnabled || _useUserLayout) {
+      // If we have a default user layout, compare with current layout
+      if (_defaultUserLayout != null) {
+        return _keyboardLayout.name.toUpperCase() == _defaultUserLayout!.name.toUpperCase();
+      }
+      // If no default user layout is set, check against initial layout
+      if (_initialKeyboardLayout != null) {
+        return _keyboardLayout.name.toUpperCase() == _initialKeyboardLayout!.name.toUpperCase();
+      }
+    }
+    
+    // Default case: if we can't determine, don't hide
+    return false;
+  }
+
   void _fadeIn() {
     if (_forceHide || _isWindowVisible) return;
+    
+    // Check if we should hide on default layer
+    if (_isOnDefaultLayer()) {
+      return; // Don't show if we're on default layer and setting is enabled
+    }
+    
     setState(() {
       _isWindowVisible = true;
       _opacity = _lastOpacity;
@@ -621,7 +665,10 @@ class _MainAppState extends State<MainApp> with TrayListener, WindowListener {
     });
     if (_forceHide) return;
     if (_autoHideEnabled && !_isWindowVisible && isPressed) {
-      _fadeIn();
+      // Only show if not on default layer (when hide on default layer is enabled)
+      if (!_isOnDefaultLayer()) {
+        _fadeIn();
+      }
     } else {
       _resetAutoHideTimer();
     }
@@ -637,12 +684,33 @@ class _MainAppState extends State<MainApp> with TrayListener, WindowListener {
               _keyboardLayout = _defaultUserLayout!;
             }
           });
+          
+          // Handle hide on default layer for toggle type
+          if (_hideOnDefaultLayer) {
+            final isNowOnDefault = _defaultUserLayout != null && 
+                _keyboardLayout.name == _defaultUserLayout!.name;
+            if (isNowOnDefault && _isWindowVisible) {
+              // Hide when switching to default layer
+              setState(() {
+                _isWindowVisible = false;
+                _opacity = 0.0;
+              });
+              _autoHideTimer?.cancel();
+            } else if (!isNowOnDefault) {
+              // Show when switching away from default layer
+              _fadeIn();
+            }
+          }
         } else if (layout.type == 'held') {
           if (isPressed && !_activeTriggers.contains(key)) {
             setState(() {
               _keyboardLayout = layout;
               _activeTriggers.add(key);
             });
+            // Show when switching to non-default layer
+            if (_hideOnDefaultLayer) {
+              _fadeIn();
+            }
           } else if (!isPressed && _activeTriggers.contains(key)) {
             setState(() {
               if (_defaultUserLayout != null) {
@@ -650,6 +718,17 @@ class _MainAppState extends State<MainApp> with TrayListener, WindowListener {
               }
               _activeTriggers.remove(key);
             });
+            
+            // Handle hide on default layer for held type
+            if (_hideOnDefaultLayer && _defaultUserLayout != null && 
+                _keyboardLayout.name == _defaultUserLayout!.name && _isWindowVisible) {
+              // Hide when returning to default layer
+              setState(() {
+                _isWindowVisible = false;
+                _opacity = 0.0;
+              });
+              _autoHideTimer?.cancel();
+            }
           }
         }
         _updateAutoHideBasedOnLayer(_keyboardLayout.name == _defaultUserLayout?.name);
@@ -1401,6 +1480,12 @@ class _MainAppState extends State<MainApp> with TrayListener, WindowListener {
             } else {
               _stopMouseTracking();
             }
+          });
+
+        case 'updateHideOnDefaultLayer':
+          final hideOnDefaultLayer = call.arguments as bool;
+          setState(() {
+            _hideOnDefaultLayer = hideOnDefaultLayer;
           });
 
         case 'closePreferencesWindow':

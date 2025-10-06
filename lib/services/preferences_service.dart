@@ -140,6 +140,8 @@ class PreferencesService {
   Future<bool> getKanataEnabled() async => await _prefs.getBool('kanataEnabled') ?? false;
   Future<bool> getKeyboardFollowsMouse() async =>
       await _prefs.getBool('keyboardFollowsMouse') ?? false;
+  Future<bool> getHideOnDefaultLayer() async =>
+      await _prefs.getBool('hideOnDefaultLayer') ?? false;
 
   // General settings
   Future<void> setLaunchAtStartup(bool value) async =>
@@ -277,6 +279,8 @@ class PreferencesService {
   Future<void> setKanataEnabled(bool value) async => await _prefs.setBool('kanataEnabled', value);
   Future<void> setKeyboardFollowsMouse(bool value) async =>
       await _prefs.setBool('keyboardFollowsMouse', value);
+  Future<void> setHideOnDefaultLayer(bool value) async =>
+      await _prefs.setBool('hideOnDefaultLayer', value);
 
   Future<Map<String, dynamic>> loadAllPreferences() async {
     return {
@@ -386,6 +390,7 @@ class PreferencesService {
         'use6ColLayout': await getUse6ColLayout(),
         'kanataEnabled': await getKanataEnabled(),
         'keyboardFollowsMouse': await getKeyboardFollowsMouse(),
+        'hideOnDefaultLayer': await getHideOnDefaultLayer(),
       };
 
   Future<void> saveAllPreferences(Map<String, dynamic> prefs) async {
@@ -475,5 +480,6 @@ class PreferencesService {
     await setUse6ColLayout(prefs['use6ColLayout']);
     await setKanataEnabled(prefs['kanataEnabled']);
     await setKeyboardFollowsMouse(prefs['keyboardFollowsMouse']);
+    await setHideOnDefaultLayer(prefs['hideOnDefaultLayer']);
   }
 }

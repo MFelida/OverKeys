@@ -13,6 +13,7 @@ class AdvancedTab extends StatelessWidget {
   final bool use6ColLayout;
   final bool kanataEnabled;
   final bool keyboardFollowsMouse;
+  final bool hideOnDefaultLayer;
   final Function(bool) updateAdvancedSettingsEnabled;
   final Function(bool) updateUseUserLayout;
   final Function(bool) updateShowAltLayout;
@@ -20,6 +21,7 @@ class AdvancedTab extends StatelessWidget {
   final Function(bool) updateUse6ColLayout;
   final Function(bool) updateKanataEnabled;
   final Function(bool) updateKeyboardFollowsMouse;
+  final Function(bool) updateHideOnDefaultLayer;
 
   const AdvancedTab({
     super.key,
@@ -30,6 +32,7 @@ class AdvancedTab extends StatelessWidget {
     required this.use6ColLayout,
     required this.kanataEnabled,
     required this.keyboardFollowsMouse,
+    required this.hideOnDefaultLayer,
     required this.updateAdvancedSettingsEnabled,
     required this.updateUseUserLayout,
     required this.updateShowAltLayout,
@@ -37,6 +40,7 @@ class AdvancedTab extends StatelessWidget {
     required this.updateUse6ColLayout,
     required this.updateKanataEnabled,
     required this.updateKeyboardFollowsMouse,
+    required this.updateHideOnDefaultLayer,
   });
 
   @override
@@ -105,6 +109,13 @@ class AdvancedTab extends StatelessWidget {
                 subtitle:
                     'EXPERIMENTAL: Keyboard will follow your mouse cursor across monitors. Note: This will override manual position adjustments. Also causes focus issues',
                 onChanged: updateKeyboardFollowsMouse,
+              ),
+              ToggleOption(
+                label: 'Hide on default layer',
+                value: hideOnDefaultLayer,
+                subtitle:
+                    'Automatically hide OverKeys when on the default/base layer. Only show when switching to other layers.',
+                onChanged: updateHideOnDefaultLayer,
               ),
               _buildOpenConfigButton(context),
             ],
