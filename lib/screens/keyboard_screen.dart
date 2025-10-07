@@ -364,19 +364,15 @@ class KeyboardScreen extends StatelessWidget {
       case 'grow':
         final scaleValue = 1 + 0.05 * animationScale;
         return Matrix4.identity()
-          ..scale(scaleValue)
-          ..translate(
-            -keySize * (scaleValue - 1) / (2 * scaleValue),
-            -keySize * (scaleValue - 1) / (2 * scaleValue),
-          );
+          ..scaleByDouble(scaleValue, scaleValue, 1, 1)
+          ..translateByDouble(-keySize * (scaleValue - 1) / (2 * scaleValue),
+              -keySize * (scaleValue - 1) / (2 * scaleValue), 1, 1);
       case 'shrink':
         final scaleValue = 1 - 0.05 * animationScale;
         return Matrix4.identity()
-          ..scale(scaleValue)
-          ..translate(
-            keySize * (1 - scaleValue) / (2 * scaleValue),
-            keySize * (1 - scaleValue) / (2 * scaleValue),
-          );
+          ..scaleByDouble(scaleValue, scaleValue, 1, 1)
+          ..translateByDouble(keySize * (1 - scaleValue) / (2 * scaleValue),
+              keySize * (1 - scaleValue) / (2 * scaleValue), 1, 1);
       default:
         return Matrix4.translationValues(
             0, 2 * animationScale, 0); // Default animation
@@ -396,37 +392,41 @@ class KeyboardScreen extends StatelessWidget {
         final scaleValue = 1 + 0.05 * animationScale;
         if (showAltLayout) {
           return Matrix4.identity()
-            ..scale(scaleValue)
-            ..translate(
-              -markerWidth * (scaleValue - 1) / (2 * scaleValue),
-              -markerWidth * (scaleValue - 1) / (2 * scaleValue),
-            );
+            ..scaleByDouble(scaleValue, scaleValue, 1, 1)
+            ..translateByDouble(
+                -markerWidth * (scaleValue - 1) / (2 * scaleValue),
+                -markerWidth * (scaleValue - 1) / (2 * scaleValue),
+                1,
+                1);
         } else {
           return Matrix4.identity()
-            ..scale(scaleValue)
-            ..translate(
-              -markerWidth * (scaleValue - 1) / (2 * scaleValue),
-              -markerHeight * (scaleValue - 1) / (2 * scaleValue) +
-                  0.8 * animationScale,
-            );
+            ..scaleByDouble(scaleValue, scaleValue, 1, 1)
+            ..translateByDouble(
+                -markerWidth * (scaleValue - 1) / (2 * scaleValue),
+                -markerHeight * (scaleValue - 1) / (2 * scaleValue) +
+                    0.8 * animationScale,
+                1,
+                1);
         }
       case 'shrink':
         final scaleValue = 1 - 0.05 * animationScale;
         if (showAltLayout) {
           return Matrix4.identity()
-            ..scale(scaleValue)
-            ..translate(
-              markerWidth * (1 - scaleValue) / (2 * scaleValue),
-              markerWidth * (1 - scaleValue) / (2 * scaleValue),
-            );
+            ..scaleByDouble(scaleValue, scaleValue, 1, 1)
+            ..translateByDouble(
+                markerWidth * (1 - scaleValue) / (2 * scaleValue),
+                markerWidth * (1 - scaleValue) / (2 * scaleValue),
+                1,
+                1);
         } else {
           return Matrix4.identity()
-            ..scale(scaleValue)
-            ..translate(
-              markerWidth * (1 - scaleValue) / (2 * scaleValue),
-              markerHeight * (1 - scaleValue) / (2 * scaleValue) -
-                  0.8 * animationScale,
-            );
+            ..scaleByDouble(scaleValue, scaleValue, 1, 1)
+            ..translateByDouble(
+                markerWidth * (1 - scaleValue) / (2 * scaleValue),
+                markerHeight * (1 - scaleValue) / (2 * scaleValue) -
+                    0.8 * animationScale,
+                1,
+                1);
         }
       default:
         return Matrix4.translationValues(0, 2 * animationScale, 0);
