@@ -85,6 +85,44 @@ class KeyEventService {
 
       keyboardNotifier.updateKeyPressState(key, isPressed);
 
+      // Handle custom aliases
+      final updatedKeyboardState = ref.read(keyboardNotifierProvider);
+      final customAliases = updatedKeyboardState.customAliases;
+
+      if (customAliases != null) {
+        customAliases.forEach((alias, keys) {
+          bool allPressed = true;
+          for (final k in keys) {
+            bool keyIsPressed = false;
+            if (k == 'Control') {
+              keyIsPressed =
+                  (updatedKeyboardState.keyPressStates['LControl'] == true) ||
+                      (updatedKeyboardState.keyPressStates['RControl'] == true);
+            } else if (k == 'Shift') {
+              keyIsPressed =
+                  (updatedKeyboardState.keyPressStates['LShift'] == true) ||
+                      (updatedKeyboardState.keyPressStates['RShift'] == true);
+            } else if (k == 'Alt') {
+              keyIsPressed =
+                  (updatedKeyboardState.keyPressStates['LAlt'] == true) ||
+                      (updatedKeyboardState.keyPressStates['RAlt'] == true);
+            } else if (k == 'Win') {
+              keyIsPressed =
+                  (updatedKeyboardState.keyPressStates['Win'] == true) ||
+                      (updatedKeyboardState.keyPressStates['RWin'] == true);
+            } else {
+              keyIsPressed = updatedKeyboardState.keyPressStates[k] == true;
+            }
+
+            if (!keyIsPressed) {
+              allPressed = false;
+              break;
+            }
+          }
+          keyboardNotifier.updateKeyPressState(alias, allPressed);
+        });
+      }
+
       // Handle auto-hide and visibility
       if (appState.forceHide) return;
 
@@ -283,16 +321,11 @@ class KeyEventService {
           keyboardNotifier.updateLayout(prefsState.defaultUserLayout!);
         }
       } else {
-        // We moved away from the held layer (e.g. toggled another layer on top)
-        // Remove the held layer's entry from the stack history
-        // We look for the layer that was pushed when this held layer was activated.
-        // Since we pushed `currentLayout` (the one before held) onto the stack,
-        // and we want to remove the effect of "Hold", we should actually remove
-        // the layer that *is* the held layer from the stack?
-        // No, wait.
-        // If we are on T1 (toggled from H1), the stack is [Default, H1].
-        // We want to remove H1 from the stack so that T1 falls back to Default.
-        // So we remove the layer with name == layout.name.
+        // We moved away from the held layer (e.g., toggled another layer on top).
+        // Remove the held layer from the stack so that when the current layer is
+        // toggled off, it reverts to the correct previous layer.
+        // Example: If on T1 (toggled from H1), stack is [Default, H1].
+        // Removing H1 ensures T1 falls back to Default, not H1.
 
         final index =
             _previousLayerStack.lastIndexWhere((l) => l.name == layout.name);
