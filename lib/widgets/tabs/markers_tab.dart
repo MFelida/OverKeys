@@ -1,35 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:overkeys/widgets/options/options.dart';
+import 'package:overkeys/providers/keyboard_provider.dart';
+import 'package:overkeys/providers/preferences_provider.dart';
 
-class MarkersTab extends StatefulWidget {
-  final double markerOffset;
-  final double markerWidth;
-  final double markerHeight;
-  final double markerBorderRadius;
-  final bool showAltLayout;
-  final Function(double) updateMarkerOffset;
-  final Function(double) updateMarkerWidth;
-  final Function(double) updateMarkerHeight;
-  final Function(double) updateMarkerBorderRadius;
+class MarkersTab extends ConsumerStatefulWidget {
+  final Function(String method, dynamic value) onUpdateMainWindow;
 
   const MarkersTab({
     super.key,
-    required this.markerOffset,
-    required this.markerWidth,
-    required this.markerHeight,
-    required this.markerBorderRadius,
-    required this.showAltLayout,
-    required this.updateMarkerOffset,
-    required this.updateMarkerWidth,
-    required this.updateMarkerHeight,
-    required this.updateMarkerBorderRadius,
+    required this.onUpdateMainWindow,
   });
 
   @override
-  State<MarkersTab> createState() => _MarkersTabState();
+  ConsumerState<MarkersTab> createState() => _MarkersTabState();
 }
 
-class _MarkersTabState extends State<MarkersTab> {
+class _MarkersTabState extends ConsumerState<MarkersTab> {
   late double _localMarkerOffset;
   late double _localMarkerWidth;
   late double _localMarkerHeight;
@@ -38,31 +25,36 @@ class _MarkersTabState extends State<MarkersTab> {
   @override
   void initState() {
     super.initState();
-    _localMarkerOffset = widget.markerOffset;
-    _localMarkerWidth = widget.markerWidth;
-    _localMarkerHeight = widget.markerHeight;
-    _localMarkerBorderRadius = widget.markerBorderRadius;
-  }
-
-  @override
-  void didUpdateWidget(MarkersTab oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.markerOffset != widget.markerOffset) {
-      _localMarkerOffset = widget.markerOffset;
-    }
-    if (oldWidget.markerWidth != widget.markerWidth) {
-      _localMarkerWidth = widget.markerWidth;
-    }
-    if (oldWidget.markerHeight != widget.markerHeight) {
-      _localMarkerHeight = widget.markerHeight;
-    }
-    if (oldWidget.markerBorderRadius != widget.markerBorderRadius) {
-      _localMarkerBorderRadius = widget.markerBorderRadius;
-    }
+    // Initialize with current provider values
+    final keyboardState = ref.read(keyboardNotifierProvider);
+    _localMarkerOffset = keyboardState.markerOffset;
+    _localMarkerWidth = keyboardState.markerWidth;
+    _localMarkerHeight = keyboardState.markerHeight;
+    _localMarkerBorderRadius = keyboardState.markerBorderRadius;
   }
 
   @override
   Widget build(BuildContext context) {
+    final prefsState = ref.watch(preferencesNotifierProvider);
+
+    // Listen for external provider changes and sync local state
+    ref.listen<KeyboardState>(keyboardNotifierProvider, (previous, next) {
+      if (previous != null) {
+        if (_localMarkerOffset != next.markerOffset) {
+          setState(() => _localMarkerOffset = next.markerOffset);
+        }
+        if (_localMarkerWidth != next.markerWidth) {
+          setState(() => _localMarkerWidth = next.markerWidth);
+        }
+        if (_localMarkerHeight != next.markerHeight) {
+          setState(() => _localMarkerHeight = next.markerHeight);
+        }
+        if (_localMarkerBorderRadius != next.markerBorderRadius) {
+          setState(() => _localMarkerBorderRadius = next.markerBorderRadius);
+        }
+      }
+    });
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -75,7 +67,12 @@ class _MarkersTabState extends State<MarkersTab> {
           onChanged: (value) {
             setState(() => _localMarkerOffset = value);
           },
-          onChangeEnd: widget.updateMarkerOffset,
+          onChangeEnd: (value) {
+            ref
+                .read(keyboardNotifierProvider.notifier)
+                .updateMarkerOffset(value);
+            widget.onUpdateMainWindow('updateMarkerOffset', value);
+          },
         ),
         SliderOption(
           label: 'Marker width',
@@ -83,13 +80,18 @@ class _MarkersTabState extends State<MarkersTab> {
           min: 0,
           max: 20,
           divisions: 20,
-          subtitle: widget.showAltLayout
+          subtitle: prefsState.showAltLayout
               ? 'When alternative layout is shown, marker width appear at half the size (width × 0.5)'
               : null,
           onChanged: (value) {
             setState(() => _localMarkerWidth = value);
           },
-          onChangeEnd: widget.updateMarkerWidth,
+          onChangeEnd: (value) {
+            ref
+                .read(keyboardNotifierProvider.notifier)
+                .updateMarkerWidth(value);
+            widget.onUpdateMainWindow('updateMarkerWidth', value);
+          },
         ),
         SliderOption(
           label: 'Marker height',
@@ -97,13 +99,18 @@ class _MarkersTabState extends State<MarkersTab> {
           min: 0,
           max: 10,
           divisions: 20,
-          subtitle: widget.showAltLayout
+          subtitle: prefsState.showAltLayout
               ? 'When alternative layout is shown, marker height is not used and instead equals the marker width after computation'
               : null,
           onChanged: (value) {
             setState(() => _localMarkerHeight = value);
           },
-          onChangeEnd: widget.updateMarkerHeight,
+          onChangeEnd: (value) {
+            ref
+                .read(keyboardNotifierProvider.notifier)
+                .updateMarkerHeight(value);
+            widget.onUpdateMainWindow('updateMarkerHeight', value);
+          },
         ),
         SliderOption(
           label: 'Marker border radius',
@@ -114,7 +121,12 @@ class _MarkersTabState extends State<MarkersTab> {
           onChanged: (value) {
             setState(() => _localMarkerBorderRadius = value);
           },
-          onChangeEnd: widget.updateMarkerBorderRadius,
+          onChangeEnd: (value) {
+            ref
+                .read(keyboardNotifierProvider.notifier)
+                .updateMarkerBorderRadius(value);
+            widget.onUpdateMainWindow('updateMarkerBorderRadius', value);
+          },
         ),
       ],
     );

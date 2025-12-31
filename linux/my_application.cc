@@ -7,6 +7,8 @@
 
 #include "flutter/generated_plugin_registrant.h"
 
+#include "desktop_multi_window/desktop_multi_window_plugin.h"
+
 struct _MyApplication {
   GtkApplication parent_instance;
   char** dart_entrypoint_arguments;
@@ -15,6 +17,18 @@ struct _MyApplication {
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
 
 // Implements GApplication::activate.
+/**
+ * @brief Create and present the application's main window and embed the Flutter view.
+ *
+ * Creates a top-level GtkWindow for the given application, configures a GNOME-style
+ * header bar when appropriate (falls back to a traditional title bar on non-GNOME
+ * X11 window managers), sets the default size, instantiates and adds the FlView
+ * backed by a FlDartProject (propagating any stored Dart entrypoint arguments),
+ * registers plugins for the view, installs a callback to register plugins for any
+ * subsequently created windows, and gives keyboard focus to the embedded view.
+ *
+ * @param application The GApplication instance being activated.
+ */
 static void my_application_activate(GApplication* application) {
   MyApplication* self = MY_APPLICATION(application);
   GtkWindow* window =
@@ -58,6 +72,10 @@ static void my_application_activate(GApplication* application) {
   gtk_container_add(GTK_CONTAINER(window), GTK_WIDGET(view));
 
   fl_register_plugins(FL_PLUGIN_REGISTRY(view));
+
+  desktop_multi_window_plugin_set_window_created_callback([](FlPluginRegistry* registry){
+    fl_register_plugins(registry);
+  });
 
   gtk_widget_grab_focus(GTK_WIDGET(view));
 }

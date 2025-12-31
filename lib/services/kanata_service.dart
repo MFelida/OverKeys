@@ -5,8 +5,10 @@ import 'package:flutter/foundation.dart';
 import 'package:overkeys/services/config_service.dart';
 import 'package:overkeys/models/keyboard_layouts.dart';
 
-typedef LayerChangeCallback = void Function(KeyboardLayout layout, bool isDefaultUserLayout);
+typedef LayerChangeCallback = void Function(
+    KeyboardLayout layout, bool isDefaultUserLayout);
 
+/// Service for integrating with Kanata keyboard layout manager
 class KanataService {
   Socket? _kanataSocket;
   Timer? _kanataTimer;
@@ -16,6 +18,10 @@ class KanataService {
   bool _reconnectEnabled = true;
   List<KeyboardLayout> _userLayouts = [];
   String _defaultUserLayout = 'QWERTY';
+  final ConfigService _configService = ConfigService();
+
+  // Constants
+  static const Duration _reconnectDelay = Duration(seconds: 5);
 
   Future<void> connect() async {
     _kanataSocket?.destroy();
@@ -23,8 +29,7 @@ class KanataService {
     _reconnectEnabled = true;
 
     try {
-      ConfigService configService = ConfigService();
-      final config = await configService.loadConfig();
+      final config = await _configService.loadConfig();
       _host = config.kanataHost ?? '127.0.0.1';
       _port = config.kanataPort ?? 4039;
       _userLayouts = config.userLayouts ?? [];
@@ -68,7 +73,7 @@ class KanataService {
     if (!_reconnectEnabled) return;
 
     _kanataTimer?.cancel();
-    _kanataTimer = Timer(const Duration(seconds: 5), connect);
+    _kanataTimer = Timer(_reconnectDelay, connect);
   }
 
   void _handleKanataMessage(String message) {
@@ -76,7 +81,9 @@ class KanataService {
       Map<String, dynamic> jsonData = jsonDecode(message);
 
       if (jsonData.containsKey('LayerChange')) {
-        String layoutName = jsonData['LayerChange']['new']?.toString().trim().toUpperCase() ?? '';
+        String layoutName =
+            jsonData['LayerChange']['new']?.toString().trim().toUpperCase() ??
+                '';
 
         if (layoutName.isNotEmpty && onLayerChange != null) {
           try {
@@ -84,13 +91,13 @@ class KanataService {
               (layout) => layout.name.toUpperCase() == layoutName,
               orElse: () => availableLayouts.firstWhere(
                 (layout) => layout.name.toUpperCase() == layoutName,
-                orElse: () =>
-                    throw Exception('Layout not found in Kanata layers or available layouts'),
+                orElse: () => throw Exception(
+                    'Layout not found in Kanata layers or available layouts'),
               ),
             );
 
-            bool isDefaultUserLayout =
-                newLayout.name.toUpperCase() == _defaultUserLayout.toUpperCase();
+            bool isDefaultUserLayout = newLayout.name.toUpperCase() ==
+                _defaultUserLayout.toUpperCase();
 
             onLayerChange!(newLayout, isDefaultUserLayout);
 

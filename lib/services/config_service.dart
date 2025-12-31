@@ -5,13 +5,16 @@ import 'package:flutter/foundation.dart';
 import '../models/user_config.dart';
 import '../models/keyboard_layouts.dart';
 
+/// Service for managing user configuration files
 class ConfigService {
   static const String _configFileName = 'overkeys_config.json';
+
+  /// Cached configuration to avoid repeated file reads
   UserConfig? _cachedConfig;
 
   Future<String> get _configPath async {
     final directory = await getApplicationSupportDirectory();
-    return '${directory.path}\\$_configFileName';
+    return '${directory.path}${Platform.pathSeparator}$_configFileName';
   }
 
   Future<String> get configPath => _configPath;
@@ -34,7 +37,6 @@ class ConfigService {
         await saveConfig(_cachedConfig!);
       }
     } catch (e) {
-      debugPrint('Error loading config: $e');
       _cachedConfig = UserConfig();
     }
 
@@ -49,7 +51,10 @@ class ConfigService {
       await file.writeAsString(jsonString);
       _cachedConfig = config;
     } catch (e) {
-      debugPrint('Error saving config: $e');
+      if (kDebugMode) {
+        debugPrint('Failed to save config: $e');
+      }
+      // Config will not be persisted, but cache is updated
     }
   }
 
@@ -57,7 +62,6 @@ class ConfigService {
     final config = await loadConfig();
 
     if (config.defaultUserLayout == null) {
-      debugPrint('Cannot get user layout: defaultUserLayout is not defined in the config file');
       return null;
     }
 
@@ -72,11 +76,9 @@ class ConfigService {
     }
 
     try {
-      return availableLayouts.firstWhere((layout) => layout.name == defaultLayoutName);
+      return availableLayouts
+          .firstWhere((layout) => layout.name == defaultLayoutName);
     } catch (e) {
-      if (kDebugMode) {
-        print('Default user layout "$defaultLayoutName" not found');
-      }
       return null;
     }
   }
@@ -85,7 +87,6 @@ class ConfigService {
     final config = await loadConfig();
 
     if (config.altLayout == null) {
-      debugPrint('Cannot get alt layout: altLayout is not defined in the config file');
       return null;
     }
 
@@ -100,11 +101,9 @@ class ConfigService {
     }
 
     try {
-      return availableLayouts.firstWhere((layout) => layout.name == altLayoutName);
+      return availableLayouts
+          .firstWhere((layout) => layout.name == altLayoutName);
     } catch (e) {
-      if (kDebugMode) {
-        print('Alt layout "$altLayoutName" not found');
-      }
       return null;
     }
   }
@@ -113,7 +112,10 @@ class ConfigService {
     final config = await loadConfig();
 
     if (config.customFont == null) {
-      debugPrint('Cannot get custom font: customFont is not defined in the config file');
+      if (kDebugMode) {
+        debugPrint(
+            'Cannot get custom font: customFont is not defined in the config file');
+      }
       return null;
     }
 
@@ -125,7 +127,7 @@ class ConfigService {
     return config.customShiftMappings;
   }
 
-  Future<List<KeyboardLayout>?> getUserLayers() async {
+  Future<List<KeyboardLayout>> getUserLayers() async {
     final config = await loadConfig();
     List<KeyboardLayout> layers = [];
 
