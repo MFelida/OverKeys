@@ -14,37 +14,37 @@ OverKeys supports locale-specific key representations to accommodate different k
    ```jsonc
        // GERMAN QWERTZ
        "customKeys": {
-               "keyCodeMap": {
-                   "Ü": 186,
-                   "+": 187,
-                   "#": 191,
-                   "Ö": 192,
-                   "ß": 219,
-                   "^": 220,
-                   "´": 221,
-                   "Ä": 222,
-                   "<": 226
-               },
-               "keyCodeShiftMap": {
-                   "=": 48,
-                   "!": 49,
-                   "\"": 50,
-                   "§": 51,
-                   "$": 52,
-                   "%": 53,
-                   "&": 54,
-                   "/": 55,
-                   "(": 56,
-                   ")": 57,
-                   "\*": 187,
-                   ";": 188,
-                   ":": 190,
-                   "'": 191,
-                   "?": 219,
-                   "°": 220,
-                   "`": 221,
-                   ">": 226
-               }
+            "keyCodeMap": {
+                "Ü": 186,
+                "+": 187,
+                "#": 191,
+                "Ö": 192,
+                "ß": 219,
+                "^": 220,
+                "´": 221,
+                "Ä": 222,
+                "<": 226
+            },
+            "keyCodeShiftMap": {
+                "=": 48,
+                "!": 49,
+                "\"": 50,
+                "§": 51,
+                "$": 52,
+                "%": 53,
+                "&": 54,
+                "/": 55,
+                "(": 56,
+                ")": 57,
+                "\*": 187,
+                ";": 188,
+                ":": 190,
+                "'": 191,
+                "?": 219,
+                "°": 220,
+                "`": 221,
+                ">": 226
+            }
        }
        //,
        //"defaultUserLayout": "QWERTZ",
@@ -59,6 +59,136 @@ OverKeys supports locale-specific key representations to accommodate different k
        //            ["END", "LCTRL", "LALT", " ", "RALT", "RCTRL", "←", "↓", "→"]
        //        ]
        //    }
+       //]
+   ```
+
+   ```jsonc
+       // FRENCH AZERTY (Legacy)
+       "customKeys": {
+            "keyCodeMap": {
+                "²": 222,
+                "&": 49,
+                "é": 50,
+                "\"": 51,
+                "'": 52,
+                "(": 53,
+                "-": 54,
+                "è": 55,
+                "_": 56,
+                "ç": 57,
+                "à": 48,
+                ")": 219,
+                "=": 187,
+                "^": 221,
+                "$": 186,
+                "*": 220,
+                "ù": 192,
+                ",": 188,
+                ";": 190,
+                ":": 191,
+                "!": 223
+            },
+            "keyCodeShiftMap": {
+                "1": 49,
+                "2": 50,
+                "3": 51,
+                "4": 52,
+                "5": 53,
+                "6": 54,
+                "7": 55,
+                "8": 56,
+                "9": 57,
+                "0": 48,
+                "°": 219,
+                "+": 187,
+                "¨": 221,
+                "£": 186,
+                "µ": 220,
+                "%": 192,
+                "?": 188,
+                ".": 190,
+                "/": 191,
+                "§": 223
+            }
+        }
+       //,
+       //"defaultUserLayout": "AZERTY",
+       //"userLayouts": [
+       //    {
+       //        "name": "AZERTY",
+       //        "keys": [
+       //            ["²", "&", "é", "\"", "'", "(", "-", "è", "_", "ç", "à", ")", "=", "BSPC", "DEL"],
+       //            ["TAB", "A", "Z", "E", "R", "T", "Y", "U", "I", "O", "P", "^", "$", "PGUP", "PGDN"],
+       //            ["Q", "S", "D", "F", "G", "H", "J", "K", "L", "M", "ù", "*", "ENTER", "HOME"],
+       //            ["LSFT", "<", "W", "X", "C", "V", "B", "N", ",", ";", ":", "!", "↑", "RSFT"],
+       //            ["END", "LCTRL", "LALT", " ", "RALT", "RCTRL", "←", "↓", "→"]
+       //        ]
+       //    }
+       //]
+   ```
+
+   ```jsonc
+       // FRENCH AZERTY (Standard)
+       "customKeys": {
+            "keyCodeMap": {
+                "@": 192,
+                "à": 49,
+                "é": 50,
+                "è": 51,
+                "ê": 52,
+                "(": 53,
+                ")": 54,
+                "‘": 55,
+                "’": 56,
+                "«": 57,
+                "»": 48,
+                "'": 222,
+                "^": 221,
+                "-": 189,
+                "+": 187,
+                "*": 220,
+                "/": 219,
+                ".": 190,
+                ",": 188,
+                ":": 191,
+                ";": 186
+            },
+            "keyCodeShiftMap": {
+                "#": 192,
+                "1": 49,
+                "2": 50,
+                "3": 51,
+                "4": 52,
+                "5": 53,
+                "6": 54,
+                "7": 55,
+                "8": 56,
+                "9": 57,
+                "0": 48,
+                "\"": 222,
+                "¨": 221,
+                "–": 189,
+                "±": 187,
+                "½": 220,
+                "?": 190,
+                "!": 188,
+                "…": 191,
+                "=": 186
+            }
+       }
+       //,
+       //"defaultUserLayout": "AZERTY Standard",
+       //"userLayouts": [
+       //    {
+       //    "name": "AZERTY Standard",
+       //    "keys": [
+       //        ["@", "à", "é", "è", "ê", "(", ")", "‘", "’", "«", "»", "'", "^", "BSPC", "DEL"],
+       //        ["TAB", "A", "Z", "E", "R", "T", "Y", "U", "I", "O", "P", "-", "+", "PGUP", "PGDN"],
+       //        ["Q", "S", "D", "F", "G", "H", "J", "K", "L", "M", "/", "*", "ENTER", "HOME"],
+       //        ["LSFT", "<", "W", "X", "C", "V", "B", "N", ".", ",", ":", ";", "↑", "RSFT"],
+       //        ["END", "LCTRL", "LALT", " ", "RALT", "RCTRL", "←", "↓", "→"]
+       //    ]
+       //}
        //]
    ```
 
@@ -82,7 +212,7 @@ You can create custom locales by defining the `customKeys` object in your config
 }
 ```
 
-`keyCodeMap` is mainly for keys that produce different characters without the Shift key, while `keyCodeShiftMap` is for keys that produce different characters when the Shift key is held down.  
+`keyCodeMap` is mainly for keys that produce different characters without the Shift key, while `keyCodeShiftMap` is for keys that produce different characters when the Shift key is held down.
 
 ## Implementation Notes
 
