@@ -41,6 +41,7 @@ class MethodCallHandler {
     Function(bool) startMouseTracking,
     Function() stopMouseTracking,
     Function() fadeIn,
+    Function() clearConfigCache,
   ) async {
     final keyboardNotifier = ref.read(keyboardNotifierProvider.notifier);
     final prefsNotifier = ref.read(preferencesNotifierProvider.notifier);
@@ -84,9 +85,15 @@ class MethodCallHandler {
         final keyboardState = ref.read(keyboardNotifierProvider);
         final layout =
             availableLayouts.firstWhere((layout) => layout.name == layoutName);
-        keyboardNotifier.updateLayout(layout);
-        if (!((keyboardState.kanataEnabled || prefsState.useUserLayout) &&
-            prefsState.advancedSettingsEnabled)) {
+
+        // If Kanata or user layout is active, only update the initialLayout
+        // (the layout to revert to when those features are disabled)
+        if ((keyboardState.kanataEnabled || prefsState.useUserLayout) &&
+            prefsState.advancedSettingsEnabled) {
+          keyboardNotifier.updateInitialLayout(layout);
+        } else {
+          // Otherwise, update both current and initial layout
+          keyboardNotifier.updateLayout(layout);
           keyboardNotifier.updateInitialLayout(layout);
         }
         fadeIn();
@@ -399,6 +406,7 @@ class MethodCallHandler {
             keyboardNotifier.updateLayout(
                 keyboardState.initialLayout ?? keyboardState.layout);
           }
+          // Don't clear altLayout data - just hide it so it can be restored later
           keyboardNotifier.updateShowAltLayout(false);
           if (currentPrefsState.customFontEnabled) {
             keyboardNotifier.updateFontFamily(
@@ -407,7 +415,11 @@ class MethodCallHandler {
           if (currentPrefsState.keyboardFollowsMouse) {
             stopMouseTracking();
           }
+          // Ensure keyboard is visible if it was hidden by advanced features
         } else {
+          // Clear cached config when re-enabling advanced settings
+          // to ensure recent changes to the config file are reflected
+          clearConfigCache();
           if (currentPrefsState.keyboardFollowsMouse) {
             startMouseTracking(true);
           }
@@ -420,7 +432,7 @@ class MethodCallHandler {
           if (currentPrefsState.useUserLayout && !keyboardState.kanataEnabled) {
             loadUserLayout();
           }
-          if (keyboardState.showAltLayout) {
+          if (currentPrefsState.showAltLayout) {
             loadAltLayout();
           }
           if (currentPrefsState.customFontEnabled) {
@@ -432,11 +444,19 @@ class MethodCallHandler {
 
       case 'updateUseUserLayout':
         final useUserLayout = _safeArgument<bool>(call.arguments, false);
-        prefsNotifier.updateUseUserLayout(useUserLayout);
+        final keyboardState = ref.read(keyboardNotifierProvider);
+
         if (useUserLayout) {
+          // Save the current layout before switching to user layout
+          // so we can restore it when toggling off
+          if (!keyboardState.kanataEnabled) {
+            keyboardNotifier.updateInitialLayout(keyboardState.layout);
+          }
+          prefsNotifier.updateUseUserLayout(useUserLayout);
           loadUserLayout();
         } else {
-          final keyboardState = ref.read(keyboardNotifierProvider);
+          prefsNotifier.updateUseUserLayout(useUserLayout);
+          // Restore the layout that was active before user layout was enabled
           if (keyboardState.initialLayout != null &&
               !keyboardState.kanataEnabled) {
             keyboardNotifier.updateLayout(keyboardState.initialLayout!);
@@ -446,21 +466,32 @@ class MethodCallHandler {
 
       case 'updateShowAltLayout':
         final showAltLayout = _safeArgument<bool>(call.arguments, false);
-        keyboardNotifier.updateShowAltLayout(showAltLayout);
+        prefsNotifier.updateShowAltLayout(showAltLayout);
         if (showAltLayout) {
           loadAltLayout();
+        } else {
+          // Clear the alternative layout when toggling off
+          prefsNotifier.updateAltLayout(null);
+          keyboardNotifier.updateShowAltLayout(false);
         }
         fadeIn();
 
       case 'updateCustomFontEnabled':
         final customFontEnabled = _safeArgument<bool>(call.arguments, false);
-        prefsNotifier.updateCustomFontEnabled(customFontEnabled);
         final keyboardState = ref.read(keyboardNotifierProvider);
+
         if (customFontEnabled) {
+          // Save the current font before switching to custom font
+          // so we can restore it when toggling off
+          keyboardNotifier.updateInitialFontFamily(keyboardState.fontFamily);
+          prefsNotifier.updateCustomFontEnabled(customFontEnabled);
           loadCustomFont();
         } else {
-          keyboardNotifier.updateFontFamily(
-              keyboardState.initialFontFamily ?? keyboardState.fontFamily);
+          prefsNotifier.updateCustomFontEnabled(customFontEnabled);
+          // Restore the font that was active before custom font was enabled
+          if (keyboardState.initialFontFamily != null) {
+            keyboardNotifier.updateFontFamily(keyboardState.initialFontFamily!);
+          }
         }
 
       case 'updateUse6ColLayout':
@@ -472,16 +503,30 @@ class MethodCallHandler {
         final kanataEnabled = _safeArgument<bool>(call.arguments, false);
         final keyboardState = ref.read(keyboardNotifierProvider);
         if (kanataEnabled && !keyboardState.kanataEnabled) {
+          // Turning Kanata ON
+          if (kDebugMode) {
+            print(
+                'Enabling Kanata. Saving current layout: ${keyboardState.layout.name}');
+          }
           keyboardNotifier.updateInitialLayout(keyboardState.layout);
           keyboardNotifier.updateKanataEnabled(true);
+          prefsNotifier.updateKanataEnabled(true);
           await useKanata();
         } else if (!kanataEnabled && keyboardState.kanataEnabled) {
-          keyboardNotifier.updateKanataEnabled(false);
-          kanataService.disconnect();
+          // Turning Kanata OFF
+          if (kDebugMode) {
+            print(
+                'Disabling Kanata. Restoring layout: ${keyboardState.initialLayout?.name ?? "null"}');
+          }
+          // First, restore the layout that was active before Kanata was enabled
           if (keyboardState.initialLayout != null) {
             keyboardNotifier.updateLayout(keyboardState.initialLayout!);
-            fadeIn();
           }
+          // Then update states and disconnect
+          keyboardNotifier.updateKanataEnabled(false);
+          prefsNotifier.updateKanataEnabled(false);
+          kanataService.disconnect();
+          fadeIn();
         }
 
       case 'updateKeyboardFollowsMouse':
@@ -497,6 +542,9 @@ class MethodCallHandler {
       case 'updateHideOnDefaultLayer':
         final hideOnDefaultLayer = _safeArgument<bool>(call.arguments, false);
         prefsNotifier.updateHideOnDefaultLayer(hideOnDefaultLayer);
+        if (!hideOnDefaultLayer) {
+          fadeIn();
+        }
 
       default:
         debugPrint('Warning: Unimplemented method ${call.method}');

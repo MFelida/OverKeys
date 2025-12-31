@@ -13,6 +13,11 @@ class ConfigurationLoader {
   ConfigurationLoader(this._kanataService, {ConfigService? configService})
       : _configService = configService ?? ConfigService();
 
+  /// Clears the cached configuration to force reload from file
+  void clearConfigCache() {
+    _configService.clearCache();
+  }
+
   Future<void> loadAllConfiguration(WidgetRef ref) async {
     final prefsState = ref.read(preferencesNotifierProvider);
     await loadCustomShiftMappings(ref);
@@ -46,10 +51,14 @@ class ConfigurationLoader {
     if (!prefsState.useUserLayout) return;
 
     final keyboardNotifier = ref.read(keyboardNotifierProvider.notifier);
+    final prefsNotifier = ref.read(preferencesNotifierProvider.notifier);
     final userLayout = await _configService.getUserLayout();
 
     if (userLayout != null) {
-      keyboardNotifier.updateInitialLayout(userLayout);
+      prefsNotifier.updateDefaultUserLayout(userLayout);
+
+      // Don't update initialLayout here - it should preserve the previous layout
+      // so we can restore it when user layout is toggled off
       if (!prefsState.kanataEnabled) {
         keyboardNotifier.updateLayout(userLayout);
       }
@@ -99,12 +108,15 @@ class ConfigurationLoader {
 
   Future<void> useKanata(WidgetRef ref) async {
     final keyboardNotifier = ref.read(keyboardNotifierProvider.notifier);
+    final keyboardState = ref.read(keyboardNotifierProvider);
     final prefsState = ref.read(preferencesNotifierProvider);
-    final userLayout = await _configService.getUserLayout();
 
-    if (userLayout != null) {
-      keyboardNotifier.updateInitialLayout(userLayout);
+    // Save the current layout as initialLayout so we can restore it when Kanata is disabled
+    // This should be the layout that was displayed before Kanata takes control
+    if (keyboardState.initialLayout == null) {
+      keyboardNotifier.updateInitialLayout(keyboardState.layout);
     }
+
     if (prefsState.kanataEnabled && prefsState.advancedSettingsEnabled) {
       try {
         await _kanataService.connect();

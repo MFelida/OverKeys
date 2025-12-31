@@ -41,6 +41,10 @@ class KeyboardScreen extends ConsumerWidget {
     PreferencesState prefsState,
   ) {
     List<Widget> rowWidgets = [];
+    final KeyboardLayout? effectiveAltLayout =
+        (prefsState.advancedSettingsEnabled && prefsState.showAltLayout)
+            ? prefsState.altLayout
+            : null;
 
     if (keyboardState.keymapStyle != 'Matrix' &&
         keyboardState.keymapStyle != 'Split Matrix') {
@@ -56,7 +60,7 @@ class KeyboardScreen extends ConsumerWidget {
           isLastKeyFirstRow: isLastKeyFirstRow,
           keyboardState: keyboardState,
           prefsState: prefsState,
-          altLayout: prefsState.altLayout,
+          altLayout: effectiveAltLayout,
         ));
       }
     } else {
@@ -65,23 +69,27 @@ class KeyboardScreen extends ConsumerWidget {
                   !keyboardState.showGraveKey))
           ? 1
           : 0;
-      int endIndex =
-          (rowIndex == 0) ? 11 : (prefsState.use6ColLayout ? 12 : 10);
+      int endIndex = (rowIndex == 0)
+          ? 11
+          : ((prefsState.use6ColLayout && prefsState.advancedSettingsEnabled)
+              ? 12
+              : 10);
 
       // Special handling for first row in Split Matrix with 6 columns
       if (rowIndex == 0 &&
           keyboardState.keymapStyle == 'Split Matrix' &&
-          prefsState.use6ColLayout) {
+          prefsState.use6ColLayout &&
+          prefsState.advancedSettingsEnabled) {
         rowWidgets.add(buildKeys(rowIndex, keys[0], 0,
             keyboardState: keyboardState,
             prefsState: prefsState,
-            altLayout: prefsState.altLayout));
+            altLayout: effectiveAltLayout));
 
         for (int i = 1; i < 6; i++) {
           rowWidgets.add(buildKeys(rowIndex, keys[i], i,
               keyboardState: keyboardState,
               prefsState: prefsState,
-              altLayout: prefsState.altLayout));
+              altLayout: effectiveAltLayout));
         }
 
         rowWidgets.add(SizedBox(width: keyboardState.splitWidth));
@@ -90,18 +98,22 @@ class KeyboardScreen extends ConsumerWidget {
           rowWidgets.add(buildKeys(rowIndex, keys[i], i,
               keyboardState: keyboardState,
               prefsState: prefsState,
-              altLayout: prefsState.altLayout));
+              altLayout: effectiveAltLayout));
         }
 
         rowWidgets.add(buildKeys(rowIndex, keys[11], 11,
             keyboardState: keyboardState,
             prefsState: prefsState,
-            altLayout: prefsState.altLayout));
+            altLayout: effectiveAltLayout));
       } else {
         for (int i = startIndex; i < keys.length && i < endIndex; i++) {
           if (keyboardState.keymapStyle == 'Split Matrix') {
             if ((rowIndex == 0 && i == 6) ||
-                (i == (prefsState.use6ColLayout ? 6 : 5) &&
+                (i ==
+                        ((prefsState.use6ColLayout &&
+                                prefsState.advancedSettingsEnabled)
+                            ? 6
+                            : 5) &&
                     rowIndex > 0 &&
                     rowIndex < 4)) {
               rowWidgets.add(SizedBox(width: keyboardState.splitWidth));
@@ -119,17 +131,17 @@ class KeyboardScreen extends ConsumerWidget {
             rowWidgets.add(buildKeys(rowIndex, keys[i], i,
                 keyboardState: keyboardState,
                 prefsState: prefsState,
-                altLayout: prefsState.altLayout));
+                altLayout: effectiveAltLayout));
             rowWidgets.add(SizedBox(width: keyboardState.lastRowSplitWidth));
             rowWidgets.add(buildKeys(rowIndex, keys[i], i,
                 keyboardState: keyboardState,
                 prefsState: prefsState,
-                altLayout: prefsState.altLayout));
+                altLayout: effectiveAltLayout));
           } else {
             rowWidgets.add(buildKeys(rowIndex, keys[i], i,
                 keyboardState: keyboardState,
                 prefsState: prefsState,
-                altLayout: prefsState.altLayout));
+                altLayout: effectiveAltLayout));
           }
         }
       }
@@ -150,16 +162,7 @@ class KeyboardScreen extends ConsumerWidget {
     required PreferencesState prefsState,
     KeyboardLayout? altLayout,
   }) {
-    bool isShiftPressed = (keyboardState.keyPressStates["LShift"] ?? false) ||
-        (keyboardState.keyPressStates["RShift"] ?? false);
-    if (isShiftPressed && keyboardState.fontFamily != '') {
-      if (keyboardState.customShiftMappings != null &&
-          keyboardState.customShiftMappings!.containsKey(key)) {
-        key = keyboardState.customShiftMappings![key]!;
-      } else {
-        key = Mappings.getShiftedSymbol(key) ?? key;
-      }
-    }
+    key = _getShiftedKey(key, keyboardState, prefsState);
     String realKey = (keyboardState.layout.foreign ?? false)
         ? qwerty.keys[rowIndex][keyIndex]
         : key;
@@ -168,7 +171,9 @@ class KeyboardScreen extends ConsumerWidget {
     bool isPressed = keyboardState.keyPressStates[keyStateKey] ?? false;
 
     // Adjust key index for 6-column layouts (extra backtick column shifts indices by 1)
-    keyIndex -= prefsState.use6ColLayout ? 1 : 0;
+    keyIndex -= (prefsState.use6ColLayout && prefsState.advancedSettingsEnabled)
+        ? 1
+        : 0;
     Color keyColor;
     if (isPressed) {
       keyColor = keyboardState.keyColorPressed;
@@ -435,6 +440,26 @@ class KeyboardScreen extends ConsumerWidget {
     }
   }
 
+  String _getShiftedKey(
+    String key,
+    KeyboardState keyboardState,
+    PreferencesState prefsState,
+  ) {
+    bool isShiftPressed = (keyboardState.keyPressStates["LShift"] ?? false) ||
+        (keyboardState.keyPressStates["RShift"] ?? false);
+
+    if (isShiftPressed &&
+        prefsState.reactiveShiftEnabled &&
+        keyboardState.fontFamily != '') {
+      if (keyboardState.customShiftMappings != null &&
+          keyboardState.customShiftMappings!.containsKey(key)) {
+        return keyboardState.customShiftMappings![key]!;
+      }
+      return Mappings.getShiftedSymbol(key) ?? key;
+    }
+    return key;
+  }
+
   String _getAltLayoutKey(
       int rowIndex,
       int keyIndex,
@@ -442,7 +467,9 @@ class KeyboardScreen extends ConsumerWidget {
       PreferencesState prefsState,
       KeyboardLayout? altLayout) {
     // Adjust key index for 6-column layouts when retrieving alternative layout keys
-    keyIndex += prefsState.use6ColLayout ? 1 : 0;
+    keyIndex += (prefsState.use6ColLayout && prefsState.advancedSettingsEnabled)
+        ? 1
+        : 0;
     if (altLayout == null || rowIndex >= altLayout.keys.length) {
       return "";
     }
@@ -451,23 +478,15 @@ class KeyboardScreen extends ConsumerWidget {
       return "";
     }
     String altKey = altRow[keyIndex];
-    bool isShiftPressed = (keyboardState.keyPressStates["LShift"] ?? false) ||
-        (keyboardState.keyPressStates["RShift"] ?? false);
-    if (isShiftPressed && keyboardState.fontFamily != '') {
-      if (keyboardState.customShiftMappings != null &&
-          keyboardState.customShiftMappings!.containsKey(altKey)) {
-        altKey = keyboardState.customShiftMappings![altKey]!;
-      } else {
-        altKey = Mappings.getShiftedSymbol(altKey) ?? altKey;
-      }
-    }
+    altKey = _getShiftedKey(altKey, keyboardState, prefsState);
     return altKey;
   }
 
   Color getFingerColor(int rowIndex, int keyIndex, KeyboardState keyboardState,
       PreferencesState prefsState) {
     // On top row (row 0), adjust index by 1 unless using 6-column layout (which already accounts for it)
-    if (rowIndex == 0 && !prefsState.use6ColLayout) {
+    if (rowIndex == 0 &&
+        !(prefsState.use6ColLayout && prefsState.advancedSettingsEnabled)) {
       keyIndex -= 1;
     }
     switch (keyIndex) {

@@ -13,6 +13,9 @@ class KeyEventService {
   /// Active trigger keys for held layer switching
   final Set<String> _activeTriggers = {};
 
+  /// Stores the stack of layers that were active before held layers were activated
+  final List<KeyboardLayout> _previousLayerStack = [];
+
   /// ReceivePort for keyboard events
   ReceivePort? _receivePort;
 
@@ -39,6 +42,7 @@ class KeyEventService {
     _receivePort?.close();
     _receivePort = null;
     _activeTriggers.clear();
+    _previousLayerStack.clear();
   }
 
   /// Handles keyboard events from the receive port
@@ -84,14 +88,6 @@ class KeyEventService {
       // Handle auto-hide and visibility
       if (appState.forceHide) return;
 
-      if (prefsState.autoHideEnabled &&
-          !appState.isWindowVisible &&
-          isPressed) {
-        fadeIn();
-      } else {
-        resetAutoHideTimer();
-      }
-
       // Handle user layer switching
       if (prefsState.useUserLayout && prefsState.advancedSettingsEnabled) {
         _handleUserLayerSwitching(
@@ -107,6 +103,32 @@ class KeyEventService {
           cancelAutoHideTimer,
           updateAutoHideBasedOnLayer,
         );
+      }
+
+      // Re-read keyboard state as it might have changed during layer switching
+      final currentKeyboardState = ref.read(keyboardNotifierProvider);
+      // Re-read app state as it might have changed during layer switching (e.g. visibility)
+      final currentAppState = ref.read(appStateNotifierProvider);
+
+      // Check if we're on the default layer
+      final isOnDefaultLayer = _isOnDefaultLayer(
+        currentKeyboardState,
+        prefsState,
+      );
+
+      if (prefsState.autoHideEnabled) {
+        if (!currentAppState.isWindowVisible && isPressed) {
+          fadeIn();
+          // If we just faded in, but we are NOT on the default layer, we should cancel the timer
+          // because fadeIn() starts it by default.
+          if (!isOnDefaultLayer) {
+            cancelAutoHideTimer();
+          }
+        } else if (isOnDefaultLayer) {
+          resetAutoHideTimer();
+        } else if (isPressed) {
+          cancelAutoHideTimer();
+        }
       }
     } catch (error, stackTrace) {
       // Log the error but keep the listener alive
@@ -139,9 +161,7 @@ class KeyEventService {
         _handleToggleLayer(
           layout,
           ref,
-          keyboardState,
           keyboardNotifier,
-          appState,
           appNotifier,
           prefsState,
           fadeIn,
@@ -151,10 +171,9 @@ class KeyEventService {
         _handleHeldLayer(
           layout,
           key,
+          ref,
           isPressed,
-          keyboardState,
           keyboardNotifier,
-          appState,
           appNotifier,
           prefsState,
           fadeIn,
@@ -171,24 +190,45 @@ class KeyEventService {
   void _handleToggleLayer(
     KeyboardLayout layout,
     WidgetRef ref,
-    KeyboardState keyboardState,
     KeyboardNotifier keyboardNotifier,
-    AppState appState,
     AppStateNotifier appNotifier,
     PreferencesState prefsState,
     void Function() fadeIn,
     void Function() cancelAutoHideTimer,
   ) {
-    if (keyboardState.layout.name != layout.name) {
+    // Read the current keyboard state fresh to avoid stale data
+    final currentLayout = ref.read(keyboardNotifierProvider).layout;
+
+    // Check if we're currently NOT on this toggle layer
+    if (currentLayout.name != layout.name) {
+      // Switch to the toggle layer
+      _previousLayerStack.add(currentLayout);
+      if (kDebugMode) {
+        print('Switching to toggle layer: ${layout.name}');
+      }
       keyboardNotifier.updateLayout(layout);
-    } else if (prefsState.defaultUserLayout != null) {
-      keyboardNotifier.updateLayout(prefsState.defaultUserLayout!);
+    } else {
+      // Already on toggle layer, revert to previous layer
+      if (_previousLayerStack.isNotEmpty) {
+        final previousLayer = _previousLayerStack.removeLast();
+        if (kDebugMode) {
+          print('Reverting toggle layer to: ${previousLayer.name}');
+        }
+        keyboardNotifier.updateLayout(previousLayer);
+      } else if (prefsState.defaultUserLayout != null) {
+        if (kDebugMode) {
+          print(
+              'Reverting to default layer: ${prefsState.defaultUserLayout!.name}');
+        }
+        keyboardNotifier.updateLayout(prefsState.defaultUserLayout!);
+      }
     }
 
     if (prefsState.hideOnDefaultLayer) {
       final currentLayout = ref.read(keyboardNotifierProvider).layout;
       final isNowOnDefault = prefsState.defaultUserLayout != null &&
           currentLayout.name == prefsState.defaultUserLayout!.name;
+      final appState = ref.read(appStateNotifierProvider);
 
       if (isNowOnDefault && appState.isWindowVisible) {
         appNotifier.updateIsWindowVisible(false);
@@ -202,16 +242,22 @@ class KeyEventService {
   void _handleHeldLayer(
     KeyboardLayout layout,
     String key,
+    WidgetRef ref,
     bool isPressed,
-    KeyboardState keyboardState,
     KeyboardNotifier keyboardNotifier,
-    AppState appState,
     AppStateNotifier appNotifier,
     PreferencesState prefsState,
     void Function() fadeIn,
     void Function() cancelAutoHideTimer,
   ) {
     if (isPressed && !_activeTriggers.contains(key)) {
+      // Store the current layer before switching to the held layer
+      final currentLayout = ref.read(keyboardNotifierProvider).layout;
+      _previousLayerStack.add(currentLayout);
+
+      if (kDebugMode) {
+        print('Switching to held layer: ${layout.name}');
+      }
       keyboardNotifier.updateLayout(layout);
       _activeTriggers.add(key);
 
@@ -219,22 +265,87 @@ class KeyEventService {
         fadeIn();
       }
     } else if (!isPressed && _activeTriggers.contains(key)) {
-      if (prefsState.defaultUserLayout != null) {
-        keyboardNotifier.updateLayout(prefsState.defaultUserLayout!);
+      final currentLayout = ref.read(keyboardNotifierProvider).layout;
+
+      // If we are still on the held layer, revert normally
+      if (currentLayout.name == layout.name) {
+        if (_previousLayerStack.isNotEmpty) {
+          final previousLayer = _previousLayerStack.removeLast();
+          if (kDebugMode) {
+            print('Reverting to previous layer: ${previousLayer.name}');
+          }
+          keyboardNotifier.updateLayout(previousLayer);
+        } else if (prefsState.defaultUserLayout != null) {
+          if (kDebugMode) {
+            print(
+                'Reverting to default layer: ${prefsState.defaultUserLayout!.name}');
+          }
+          keyboardNotifier.updateLayout(prefsState.defaultUserLayout!);
+        }
+      } else {
+        // We moved away from the held layer (e.g. toggled another layer on top)
+        // Remove the held layer's entry from the stack history
+        // We look for the layer that was pushed when this held layer was activated.
+        // Since we pushed `currentLayout` (the one before held) onto the stack,
+        // and we want to remove the effect of "Hold", we should actually remove
+        // the layer that *is* the held layer from the stack?
+        // No, wait.
+        // If we are on T1 (toggled from H1), the stack is [Default, H1].
+        // We want to remove H1 from the stack so that T1 falls back to Default.
+        // So we remove the layer with name == layout.name.
+
+        final index =
+            _previousLayerStack.lastIndexWhere((l) => l.name == layout.name);
+        if (index != -1) {
+          _previousLayerStack.removeAt(index);
+          if (kDebugMode) {
+            print(
+                'Removed held layer from stack (out-of-order release): ${layout.name}');
+          }
+        }
       }
       _activeTriggers.remove(key);
 
       if (prefsState.hideOnDefaultLayer &&
-          prefsState.defaultUserLayout != null &&
-          appState.isWindowVisible) {
-        appNotifier.updateIsWindowVisible(false);
-        cancelAutoHideTimer();
+          prefsState.defaultUserLayout != null) {
+        final appState = ref.read(appStateNotifierProvider);
+        if (appState.isWindowVisible) {
+          final currentLayout = ref.read(keyboardNotifierProvider).layout;
+          final isNowOnDefault =
+              currentLayout.name == prefsState.defaultUserLayout!.name;
+
+          if (isNowOnDefault) {
+            appNotifier.updateIsWindowVisible(false);
+            cancelAutoHideTimer();
+          }
+        }
       }
     }
+  }
+
+  /// Checks if the current layer is the default layer
+  bool _isOnDefaultLayer(
+    KeyboardState keyboardState,
+    PreferencesState prefsState,
+  ) {
+    // If user layout is enabled
+    if (prefsState.useUserLayout && prefsState.defaultUserLayout != null) {
+      return keyboardState.layout.name == prefsState.defaultUserLayout!.name;
+    }
+
+    // If no user layout, check against initial layout
+    if (prefsState.initialKeyboardLayout != null) {
+      return keyboardState.layout.name ==
+          prefsState.initialKeyboardLayout!.name;
+    }
+
+    // Default to true if no specific layout is configured
+    return true;
   }
 
   /// Clears all active triggers
   void clearActiveTriggers() {
     _activeTriggers.clear();
+    _previousLayerStack.clear();
   }
 }
