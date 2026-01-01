@@ -20,6 +20,12 @@ class ConfigurationLoader {
 
   Future<void> loadAllConfiguration(WidgetRef ref) async {
     final prefsState = ref.read(preferencesNotifierProvider);
+    final prefsNotifier = ref.read(preferencesNotifierProvider.notifier);
+
+    // Load the full user config first
+    final config = await _configService.loadConfig();
+    prefsNotifier.updateUserConfig(config);
+
     await loadCustomShiftMappings(ref);
     await loadCustomAliases(ref);
 

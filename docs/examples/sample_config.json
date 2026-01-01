@@ -131,5 +131,8 @@
 	// 	}
 	// },
 	"kanataHost": "127.0.0.1",
-	"kanataPort": 4039
+	"kanataPort": 4039,
+	// Array of key names to ignore - keyboard won't appear when these keys are pressed
+	// Useful for keys like Print Screen, or keys not in your current layout
+	"ignoredKeys": ["PRTSC", "F13", "F14", "F15"]
 }

@@ -10,6 +10,7 @@ class UserConfig {
   int? kanataPort;
   Map<String, dynamic>? customKeys;
   Map<String, dynamic>? customAliases;
+  List<String>? ignoredKeys;
 
   UserConfig({
     this.defaultUserLayout,
@@ -21,6 +22,7 @@ class UserConfig {
     this.kanataPort,
     this.customKeys,
     this.customAliases,
+    this.ignoredKeys,
   });
 
   factory UserConfig.fromJson(Map<String, dynamic> json) {
@@ -55,6 +57,11 @@ class UserConfig {
       customAliases = Map<String, dynamic>.from(json['customAliases']);
     }
 
+    List<String>? ignoredKeys;
+    if (json['ignoredKeys'] != null) {
+      ignoredKeys = List<String>.from(json['ignoredKeys']);
+    }
+
     return UserConfig(
       defaultUserLayout: json['defaultUserLayout'],
       altLayout: json['altLayout'],
@@ -65,6 +72,7 @@ class UserConfig {
       kanataPort: json['kanataPort'] != null ? json['kanataPort'] as int : null,
       customKeys: customKeys,
       customAliases: customAliases,
+      ignoredKeys: ignoredKeys,
     );
   }
 
@@ -94,6 +102,8 @@ class UserConfig {
         'customKeys': customKeys,
       if (customAliases != null && customAliases!.isNotEmpty)
         'customAliases': customAliases,
+      if (ignoredKeys != null && ignoredKeys!.isNotEmpty)
+        'ignoredKeys': ignoredKeys,
     };
   }
 }

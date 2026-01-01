@@ -134,6 +134,7 @@ This project was initially developed to help with the creator's system-wide prac
 - **Top row/Number row**: Optional row above the main keyboard for numbers or user-configured keys
 - **[Layer switching](/docs/advanced/layer-switching.md)**: Switch between multiple custom keyboard layers for QMK, ZMK, or other programmable keyboard firmware using configurable triggers and toggle modes
 - **[Layer switching (Kanata)](./docs/advanced/kanata-integration.md)**: Connect to [Kanata](https://github.com/jtroo/kanata) through TCP to dynamically display the active layer
+- **[Ignored Keys](/docs/advanced/ignored-keys.md)**: Prevent specific keys from triggering the keyboard overlay (e.g., Print Screen, layer triggers)
 - **[Learning Mode](/docs/user-guide/learning-mode.md)**: Color-code keys based on proper finger positions for touch typing
 - **[Reactive Shift Mapping](/docs/advanced/shift-mappings.md)**: Display alternate key symbols when Shift key is pressed
 - **[Locales](/docs/advanced/locales.md)**: Add locale-specific keys in user configuration for key press recognition

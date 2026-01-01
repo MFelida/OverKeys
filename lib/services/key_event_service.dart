@@ -85,6 +85,20 @@ class KeyEventService {
 
       keyboardNotifier.updateKeyPressState(key, isPressed);
 
+      // Check if key should be ignored - stop all processing if it is
+      final ignoredKeys = prefsState.userConfig?.ignoredKeys;
+      if (isPressed) {
+        if (kDebugMode) {
+          print('Ignored keys from config: $ignoredKeys');
+        }
+      }
+      if (ignoredKeys != null && ignoredKeys.contains(key)) {
+        if (kDebugMode) {
+          print('Key "$key" is in ignored list, stopping key event flow');
+        }
+        return;
+      }
+
       // Handle custom aliases
       final updatedKeyboardState = ref.read(keyboardNotifierProvider);
       final customAliases = updatedKeyboardState.customAliases;

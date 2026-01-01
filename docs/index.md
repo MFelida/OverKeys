@@ -20,6 +20,7 @@ Welcome to the OverKeys documentation! This guide will help you get started with
 - [Alternative Layouts](advanced/alternative-layouts.md) - Quickly switch between different layouts
 - [6-Column Layouts](advanced/6-column-layouts.md) - Set up OverKeys for a 6-column split matrix keyboard
 - [Layer Switching](advanced/layer-switching.md) - Switch between multiple custom keyboard layers with custom triggers
+- [Ignored Keys](advanced/ignored-keys.md) - Prevent specific keys from triggering the keyboard overlay
 - [Kanata Integration](advanced/kanata-integration.md) - Connect OverKeys with Kanata for advanced functionality
 - [Custom Aliases](advanced/custom-aliases.md) - Define custom aliases for key combinations
 - [Shift Mappings](advanced/shift-mappings.md) - Customize shift-key behavior for specific characters
