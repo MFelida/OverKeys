@@ -203,12 +203,12 @@ Always test:
 
 | Category  | Files  | Tests   | Notes                                        |
 | --------- | ------ | ------- | -------------------------------------------- |
-| Models    | 3      | 36      | Full coverage of data models                 |
+| Models    | 3      | 39      | Full coverage of data models                 |
 | Utils     | 3      | 53      | Key codes, fonts, and themes                 |
 | Providers | 3      | 63      | All three state providers covered            |
 | Services  | 4      | 67      | State, config, Kanata, startup               |
 | Widgets   | 6      | 57      | Options widgets and overlays                 |
-| **Total** | **19** | **276** | Comprehensive coverage of core functionality |
+| **Total** | **19** | **279** | Comprehensive coverage of core functionality |
 
 ### 4. Service Tests (`test/services/`)
 
