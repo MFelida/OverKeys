@@ -6,6 +6,12 @@ on:
     types: [opened, synchronize, reopened]
   release:
     types: [created]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version number (e.g., 1.0.0) for manual testing"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -295,6 +301,59 @@ jobs:
               core.error(`Failed to post comment: ${error.message}`);
               throw error;
             }
+
+  # Manual test build - triggered via workflow_dispatch
+  manual-test:
+    runs-on: windows-latest
+    if: github.event_name == 'workflow_dispatch'
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+
+      - name: Install InnoSetup
+        run: |
+          choco install innosetup -y
+          Write-Host "✅ InnoSetup installed"
+        shell: pwsh
+
+      - name: Build Flutter Windows app
+        run: |
+          .\scripts\ci\build_windows.ps1 -StagingPath "${{ runner.temp }}\inno-staging"
+        shell: pwsh
+
+      - name: Compile InnoSetup installer
+        run: |
+          .\scripts\ci\compile_installer.ps1 `
+            -StagingPath "${{ runner.temp }}\inno-staging" `
+            -OutputPath "${{ runner.temp }}\output" `
+            -Version "${{ inputs.version }}"
+        shell: pwsh
+
+      - name: Create portable ZIP archive
+        run: |
+          Copy-Item -Path "LICENSE" -Destination "${{ runner.temp }}\inno-staging"
+          .\scripts\ci\compile_zip.ps1 `
+            -StagingPath "${{ runner.temp }}\inno-staging" `
+            -OutputPath "${{ runner.temp }}\output" `
+            -Version "${{ inputs.version }}"
+        shell: pwsh
+
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: overkeys-test-build-${{ inputs.version }}
+          path: |
+            ${{ runner.temp }}/output/overkeys_${{ inputs.version }}_x64_setup.exe
+            ${{ runner.temp }}/output/overkeys_${{ inputs.version }}_x64.zip
+          retention-days: 7
+          if-no-files-found: error
 
   # Upload installers to release after PR is merged
   upload-release:
