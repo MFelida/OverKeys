@@ -12,8 +12,8 @@ param(
 
 Write-Host "🔨 Building Flutter Windows application..." -ForegroundColor Cyan
 
-# Navigate to project root
-$projectRoot = Split-Path -Parent $PSScriptRoot
+# Navigate to project root (scripts/ci -> scripts -> project root)
+$projectRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 Set-Location $projectRoot
 
 # Determine Flutter command
