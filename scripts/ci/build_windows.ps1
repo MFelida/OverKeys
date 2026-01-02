@@ -40,10 +40,20 @@ Write-Host "📁 Staging files to $StagingPath..." -ForegroundColor Yellow
 Remove-Item $StagingPath -Force -Recurse -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Force -Path $StagingPath | Out-Null
 
-Copy-Item -Path "build\windows\x64\runner\Release\*" -Destination $StagingPath -Recurse
-Copy-Item -Path "assets\images\app_icon.ico" -Destination $StagingPath
-Copy-Item -Path "LICENSE" -Destination $StagingPath
-Copy-Item -Path "scripts\x64\*.dll" -Destination $StagingPath
+# Verify build output exists
+$buildPath = Join-Path $projectRoot "build\windows\x64\runner\Release"
+if (-not (Test-Path $buildPath)) {
+    Write-Host "❌ Build output folder does not exist: $buildPath" -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "📂 Build output found at: $buildPath" -ForegroundColor Green
+
+# Use absolute paths from project root
+Copy-Item -Path "$buildPath\*" -Destination $StagingPath -Recurse
+Copy-Item -Path (Join-Path $projectRoot "assets\images\app_icon.ico") -Destination $StagingPath
+Copy-Item -Path (Join-Path $projectRoot "LICENSE") -Destination $StagingPath
+Copy-Item -Path (Join-Path $projectRoot "scripts\x64\*.dll") -Destination $StagingPath
 
 Write-Host "✅ Build completed successfully!" -ForegroundColor Green
 Write-Host "📂 Files staged at: $StagingPath" -ForegroundColor Green
