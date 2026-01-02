@@ -131,15 +131,11 @@ jobs:
           # Verify ZIP integrity
           Write-Host "🔍 Verifying ZIP archive integrity..."
           try {
-            $zipTest = Test-Path -Path $zipFile -PathType Leaf
-            if (-not $zipTest) {
-              Write-Host "❌ ZIP archive is invalid or corrupted"
-              exit 1
-            }
-            # Try to enumerate ZIP contents
-            $shell = New-Object -ComObject shell.application
-            $zip = $shell.NameSpace($zipFile)
-            $zipItemCount = $zip.Items().Count
+            Add-Type -AssemblyName System.IO.Compression.FileSystem
+            $zip = [System.IO.Compression.ZipFile]::OpenRead($zipFile)
+            $zipItemCount = $zip.Entries.Count
+            $zip.Dispose()
+            
             if ($zipItemCount -eq 0) {
               Write-Host "❌ ZIP archive is empty"
               exit 1
@@ -394,15 +390,11 @@ jobs:
           # Verify ZIP integrity
           Write-Host "🔍 Verifying ZIP archive integrity..."
           try {
-            $zipTest = Test-Path -Path $zipFile -PathType Leaf
-            if (-not $zipTest) {
-              Write-Host "❌ ZIP archive is invalid or corrupted"
-              exit 1
-            }
-            # Try to enumerate ZIP contents
-            $shell = New-Object -ComObject shell.application
-            $zip = $shell.NameSpace($zipFile)
-            $zipItemCount = $zip.Items().Count
+            Add-Type -AssemblyName System.IO.Compression.FileSystem
+            $zip = [System.IO.Compression.ZipFile]::OpenRead($zipFile)
+            $zipItemCount = $zip.Entries.Count
+            $zip.Dispose()
+            
             if ($zipItemCount -eq 0) {
               Write-Host "❌ ZIP archive is empty"
               exit 1
