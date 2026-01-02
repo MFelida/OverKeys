@@ -38,41 +38,19 @@ on:
 ### 2. **release-pipeline.yml** - Enhanced Installer Testing ✅
 
 **Lines Changed:** 58-255  
-**What:** Added comprehensive hybrid installer testing
+**What:** Builds installers on release-please PRs
 
-#### New Test Steps
+#### What it does
 
-1. **Test installer integrity** (lines 58-100)
-
-   - Verifies EXE/ZIP files exist
-   - Checks file sizes (EXE > 10MB, ZIP > 5MB)
-   - Validates ZIP archive is readable
-
-2. **Test installer installation** (lines 102-225)
-
-   - Silent install to test directory
-   - Verifies app executable created
-   - Attempts to launch app for 5 seconds
-   - Silently uninstalls
-   - Logs all results
-
-3. **Report test results** (lines 227-242)
-
-   - Summarizes pass/fail status
-   - Fails workflow if tests don't pass
-   - Clear output for debugging
-
-4. **Enhanced PR comment** (lines 244-279)
-   - Shows test status (✅ or ❌)
-   - Lists results for integrity & install tests
-   - Guides next steps
+- Builds Windows installers (EXE and ZIP)
+- Uploads artifacts to PR for manual testing
+- On release event, uploads installers to GitHub Release
 
 **Impact:**
 
-- ✅ Catches installer corruption early
-- ✅ Detects missing files before release
-- ✅ Verifies app launches successfully
-- ✅ You only approve releases with passing tests
+- ✅ Installers built automatically
+- ✅ Available for download and testing
+- ✅ Uploaded to releases automatically
 
 **Test Output Example:**
 
@@ -82,15 +60,11 @@ on:
 **Version:** `v0.3.3`
 **Build Run:** [#42](...)
 
-### 🧪 Automated Tests: ✅ PASSED
-- ✅ File Integrity
-- ✅ Installation & Launch
-
 ### 📦 Artifacts Created:
 - `overkeys_0.3.3_x64_setup.exe`
 - `overkeys_0.3.3_x64.zip`
 
-✅ Automated checks passed. Ready to merge when you've verified the features.
+✅ Installers have been built successfully. Download the artifacts above to test manually before merging.
 ```
 
 ---
@@ -108,8 +82,6 @@ You push "feat: Add feature" to main
 Workflow detects "feat:" prefix
     ↓
 Builds full installers
-    ↓
-Runs integrity tests
     ↓
 Creates pre-release v0.3.3-feat-nightly.20260102-abc1234
     ↓
@@ -261,7 +233,6 @@ This label tells the release-approval workflow to proceed with merging and publi
 
 ✅ Docs skip tests (faster feedback)  
 ✅ Auto nightly builds for testing  
-✅ Automated installer validation (integrity + smoke test)  
 ✅ Approval gate for safe publishing  
 ✅ Auto-publish via label (no UI clicking)  
 ✅ Clear, documented release process

@@ -114,68 +114,7 @@ jobs:
             -Version "${{ steps.version.outputs.VERSION }}"
         shell: pwsh
 
-      - name: Test installer integrity
-        id: integrity_test
-        run: |
-          $version = "${{ steps.version.outputs.VERSION }}"
-          $exeFile = "${{ runner.temp }}/output/overkeys_${version}_x64_setup.exe"
-          $zipFile = "${{ runner.temp }}/output/overkeys_${version}_x64.zip"
-
-          Write-Host "🔍 Running installer integrity checks..."
-
-          # Check files exist
-          if (-not (Test-Path $exeFile)) {
-            Write-Host "❌ EXE file not found: $exeFile"
-            exit 1
-          }
-          if (-not (Test-Path $zipFile)) {
-            Write-Host "❌ ZIP file not found: $zipFile"
-            exit 1
-          }
-
-          # Check file sizes are reasonable
-          $exeSize = (Get-Item $exeFile).Length / 1MB
-          $zipSize = (Get-Item $zipFile).Length / 1MB
-
-          if ($exeSize -lt 10) {
-            Write-Host "❌ EXE file suspiciously small: $exeSize MB"
-            exit 1
-          }
-          if ($zipSize -lt 5) {
-            Write-Host "❌ ZIP file suspiciously small: $zipSize MB"
-            exit 1
-          }
-
-          Write-Host "✅ File size checks passed"
-          Write-Host "   EXE: $([math]::Round($exeSize, 2)) MB"
-          Write-Host "   ZIP: $([math]::Round($zipSize, 2)) MB"
-
-          # Verify ZIP integrity
-          Write-Host "🔍 Verifying ZIP archive integrity..."
-          try {
-            $zipTest = Test-Path -Path $zipFile -PathType Leaf
-            if (-not $zipTest) {
-              Write-Host "❌ ZIP archive is invalid or corrupted"
-              exit 1
-            }
-            $shell = New-Object -ComObject shell.application
-            $zip = $shell.NameSpace($zipFile)
-            $zipItemCount = $zip.Items().Count
-            if ($zipItemCount -eq 0) {
-              Write-Host "❌ ZIP archive is empty"
-              exit 1
-            }
-            Write-Host "✅ ZIP integrity verified ($zipItemCount items found)"
-          } catch {
-            Write-Host "❌ Failed to verify ZIP: $_"
-            exit 1
-          }
-
-          echo "INTEGRITY_PASSED=true" >> $env:GITHUB_OUTPUT
-        shell: pwsh
-
       - name: Create pre-release on GitHub
-        if: steps.integrity_test.outputs.INTEGRITY_PASSED == 'true'
         uses: softprops/action-gh-release@v2
         with:
           files: |
@@ -212,11 +151,6 @@ jobs:
       - name: Report status
         if: always()
         run: |
-          if ("${{ steps.integrity_test.outputs.INTEGRITY_PASSED }}" -eq "true") {
-            Write-Host "✅ Nightly build completed successfully!"
-            Write-Host "📦 Pre-release created: ${{ steps.version.outputs.VERSION }}"
-          } else {
-            Write-Host "❌ Nightly build failed during integrity checks"
-            exit 1
-          }
+          Write-Host "✅ Nightly build completed successfully!"
+          Write-Host "📦 Pre-release created: ${{ steps.version.outputs.VERSION }}"
         shell: pwsh

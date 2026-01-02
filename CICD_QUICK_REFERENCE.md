@@ -123,7 +123,7 @@ Wednesday 2:20 PM
 
 ## Emergency Override
 
-If automated tests pass but you find an issue:
+If you find an issue after reviewing the built installers:
 
 ### Option 1: Fix and re-run
 

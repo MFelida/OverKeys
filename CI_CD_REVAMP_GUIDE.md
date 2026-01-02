@@ -5,10 +5,9 @@
 Your CI/CD pipeline has been modernized with the following improvements:
 
 1. **Optimized Test Workflow** - Skip tests on doc-only changes
-2. **Hybrid Installer Testing** - Automated integrity checks + silent install validation
-3. **Nightly Pre-release Builds** - Auto-build on feat/fix commits
-4. **Smart Release Approval** - Label-based approval gate for publishing
-5. **Streamlined Release Flow** - Manual review → Auto-merge → Auto-publish
+2. **Nightly Pre-release Builds** - Auto-build on feat/fix commits
+3. **Smart Release Approval** - Label-based approval gate for publishing
+4. **Streamlined Release Flow** - Manual review → Auto-merge → Auto-publish
 
 ---
 
@@ -42,39 +41,28 @@ on:
 
 **Trigger:** PR to `main` (release-please) → Release event
 
-**New Testing Steps:**
+**What it does:**
 
-#### A. **Integrity Testing**
-
-- ✅ Verifies EXE and ZIP files exist
-- ✅ Checks file sizes are reasonable (EXE > 10MB, ZIP > 5MB)
-- ✅ Validates ZIP archive contents (not empty, readable)
-
-#### B. **Smoke Testing (Silent Install)**
-
-- ✅ Installs to `C:\Program Files\OverKeys-Test` silently
-- ✅ Verifies app executable exists post-installation
-- ✅ Attempts to launch the app for 5 seconds
-- ✅ Silently uninstalls after test
-- ✅ Catches: corruption, missing files, install failures, launch crashes
+- ✅ Builds Windows installers (EXE and ZIP)
+- ✅ Uploads artifacts to PR for manual testing
+- ✅ On release event, uploads installers to GitHub Release
 
 **PR Comment includes:**
 
 ```text
-## Release Insta.llers Built
+## Release Installers Built
 
-🧪 Automated Tests: ✅ PASSED
-- ✅ File Integrity
-- ✅ Installation & Launch
+**Version:** `v0.3.3`
+**Build Run:** #123
 
 📦 Artifacts Created:
 - overkeys_0.3.3_x64_setup.exe (InnoSetup Installer)
 - overkeys_0.3.3_x64.zip (Portable ZIP)
 
-✅ Automated checks passed. Ready to merge when you've verified the features.
+✅ Installers have been built successfully. Download the artifacts above to test manually before merging.
 ```
 
-**Your responsibility:** Review features/changes in the release-please PR. Automated tests verify installer integrity.
+**Your responsibility:** Review features/changes in the release-please PR and manually test the built installers.
 
 ---
 
@@ -87,8 +75,7 @@ on:
 1. Detects commit type from commit message
 2. Generates version: `feat-nightly.20260102-abc1234`
 3. Builds full installers
-4. Runs integrity tests
-5. Creates GitHub pre-release (automatically published, marked as pre-release)
+4. Creates GitHub pre-release (automatically published, marked as pre-release)
 
 **Example flow:**
 
@@ -100,8 +87,6 @@ Nightly workflow starts
 Detects "feat:" prefix
     ↓
 Builds v0.3.3-feat-nightly.20260102
-    ↓
-Integrity tests pass
     ↓
 Creates pre-release on GitHub
     ↓
@@ -167,11 +152,10 @@ Uses existing conventional commit detection.
 
 ---
 
-### 6. **release-pipeline.yml** - Minor changes
+### 6. **release-pipeline.yml** - No changes to testing
 
-- Installer tests now report results in PR comment
-- Tests must pass (workflow fails if integrity/install tests fail)
-- You can still ignore failures and merge if needed (emergency override)
+- Builds installers on release-please PRs
+- Uploads artifacts for manual testing
 
 ---
 
@@ -184,16 +168,15 @@ graph TD
     C --> D["👥 Users test nightly build"]
 
     B --> E["🤖 release-please runs\n(creates version PR)"]
-    E --> F["📋 Installer tests run\n(integrity + smoke test)"]
-    F --> G["👀 You review PR\n(features, changelog, tests)"]
+    E --> F["� You review PR\n(features, changelog)"]
 
-    G --> H{"Approve?"}
-    H -->|"Add label: approved-for-release"| I["🔄 Workflow auto-merges"]
-    H -->|"Not ready"| J["✏️ Request changes"]
-    J --> G
+    F --> G{"Approve?"}
+    G -->|"Add label: approved-for-release"| H["🔄 Workflow auto-merges"]
+    G -->|"Not ready"| I["✏️ Request changes"]
+    I --> F
 
-    I --> K["📦 release-please publishes\n(creates GitHub Release)"]
-    K --> L["✅ Workflow publishes draft\n(release is now public)"]
+    H --> J["📦 release-please publishes\n(creates GitHub Release)"]
+    J --> K["✅ Workflow publishes draft\n(release is now public)"]
     L --> M["🪟 winget-releaser publishes\n(Windows Package Manager)"]
     M --> N["🎉 Release complete!"]
 ```
@@ -202,16 +185,15 @@ graph TD
 
 ## Key Timings
 
-| Step                      | Duration    | Notes                      |
-| ------------------------- | ----------- | -------------------------- |
-| Push to main              | Immediate   | Nightly build starts ~5s   |
-| Nightly build complete    | ~5 minutes  | (Includes installer tests) |
-| release-please creates PR | ~30 seconds | After your last commit     |
-| Installer tests on PR     | ~3 minutes  | Integrity + smoke test     |
-| You review                | ⏱️ Manual   | Typically 5-30 minutes     |
-| Auto-merge to publish     | ~1 minute   | After you add label        |
-| winget publish            | ~5 minutes  | Platform-side delay        |
-| **Total time to release** | ~15 minutes | (After you approve)        |
+| Step                      | Duration    | Notes                    |
+| ------------------------- | ----------- | ------------------------ |
+| Push to main              | Immediate   | Nightly build starts ~5s |
+| Nightly build complete    | ~5 minutes  | Full installer build     |
+| release-please creates PR | ~30 seconds | After your last commit   |
+| You review                | ⏱️ Manual   | Typically 5-30 minutes   |
+| Auto-merge to publish     | ~1 minute   | After you add label      |
+| winget publish            | ~5 minutes  | Platform-side delay      |
+| **Total time to release** | ~15 minutes | (After you approve)      |
 
 ---
 
@@ -220,7 +202,7 @@ graph TD
 ### Workflows Updated
 
 - `test.yml` - Added paths-ignore for docs
-- `release-pipeline.yml` - Added integrity + smoke tests
+- `release-pipeline.yml` - Builds installers on release-please PRs
 
 ### Workflows Created
 
@@ -278,11 +260,11 @@ Create a release-please PR manually (trigger main push):
 - Must be pushed to `main` branch
 - Check Actions tab for workflow status
 
-### Release tests failing?
+### Release build failing?
 
 - Check installer build logs
 - Verify InnoSetup compiled valid EXE
-- Smoke test failure means the app crashes on launch
+- Download artifacts and test manually
 
 ### Auto-merge not working?
 
@@ -309,7 +291,6 @@ If needed later, consider:
 You now have:
 
 - ✅ **Faster tests** (skip docs)
-- ✅ **Safer releases** (hybrid installer testing)
 - ✅ **Nightly builds** (auto pre-releases for testing)
 - ✅ **Approval gates** (label-based safe publishing)
 - ✅ **Automated publishing** (less manual work)

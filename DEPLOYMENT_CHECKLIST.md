@@ -46,10 +46,9 @@ git add *.md
 git status
 
 # Commit with clear message
-git commit -m "ci: revamp cicd with nightly builds, installer testing, and approval gates
+git commit -m "ci: revamp cicd with nightly builds and approval gates
 
 - Add doc-only skip to test workflow (faster feedback)
-- Add hybrid installer testing: integrity + smoke test
 - Add nightly pre-release builds on feat/fix commits
 - Add approval gate for release publishing
 - Add comprehensive documentation and guides"
