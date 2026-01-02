@@ -15,10 +15,12 @@ Your CI/CD pipeline has been modernized with the following improvements:
 ## Updated Workflows
 
 ### 1. **test.yml** - Testing Workflow
+
 **Trigger:** Push/PR on `main`, `develop`, `refactor/**`  
 **Optimization:** Skips tests when only markdown/docs files change
 
 **What changed:**
+
 ```yaml
 on:
   push:
@@ -29,6 +31,7 @@ on:
 ```
 
 **Benefits:**
+
 - ✅ Faster feedback on doc updates
 - ✅ CI resources only used for code changes
 - ✅ Tests still run on all code modifications
@@ -36,16 +39,19 @@ on:
 ---
 
 ### 2. **build-release.yml** - Release Installer Build  
+
 **Trigger:** PR to `main` (release-please) → Release event
 
 **New Testing Steps:**
 
 #### A. **Integrity Testing**
+
 - ✅ Verifies EXE and ZIP files exist
 - ✅ Checks file sizes are reasonable (EXE > 10MB, ZIP > 5MB)
 - ✅ Validates ZIP archive contents (not empty, readable)
 
 #### B. **Smoke Testing (Silent Install)**
+
 - ✅ Installs to `C:\Program Files\OverKeys-Test` silently
 - ✅ Verifies app executable exists post-installation
 - ✅ Attempts to launch the app for 5 seconds
@@ -53,8 +59,9 @@ on:
 - ✅ Catches: corruption, missing files, install failures, launch crashes
 
 **PR Comment includes:**
-```
-## Release Installers Built
+
+``` text
+## Release Insta.llers Built
 
 🧪 Automated Tests: ✅ PASSED
 - ✅ File Integrity
@@ -72,9 +79,11 @@ on:
 ---
 
 ### 3. **nightly-build.yml** - Automatic Pre-release Builds ⭐ NEW
+
 **Trigger:** Push to `main` with `feat:` or `fix:` commit message
 
 **How it works:**
+
 1. Detects commit type from commit message
 2. Generates version: `feat-nightly.20260102-abc1234`
 3. Builds full installers
@@ -82,7 +91,8 @@ on:
 5. Creates GitHub pre-release (automatically published, marked as pre-release)
 
 **Example flow:**
-```
+
+``` text
 You merge: "feat: Add keyboard customization"
     ↓ (webhook triggers on push to main)
 Nightly workflow starts
@@ -99,11 +109,13 @@ Users can download to test new features
 ```
 
 **Pre-release badges:**
+
 - 🟠 **Pre-release** (not the "latest" release)
 - 🟡 **Marked unstable** (users expect bugs)
 - 🟢 **Downloadable** (users can opt-in to test)
 
 **Benefits:**
+
 - Early testing feedback loop
 - Separates nightly builds from official releases
 - Zero extra configuration needed
@@ -111,10 +123,12 @@ Users can download to test new features
 ---
 
 ### 4. **release-approval.yml** - Release Publishing Approval ⭐ NEW
+
 **Trigger:** PR labeled with `approved-for-release`
 
 **Workflow:**
-```
+
+``` text
 release-please creates PR: "chore: release v0.3.3"
     ↓
 release-approval.yml adds comment with instructions
@@ -133,12 +147,14 @@ winget-releaser auto-triggers → publishes to Windows Package Manager
 ```
 
 **Your workflow:**
+
 1. **Review** release-please PR (features, version bump, changelog)
 2. **Verify** installer tests passed (see PR comments)
 3. **Approve** by adding label `approved-for-release`
 4. **Done** - everything else is automatic
 
 **What you avoid:**
+
 - ❌ Manually clicking "Publish Release" on GitHub
 - ❌ Waiting for GitHub UI load
 - ❌ Forgetting to publish (release stays draft)
@@ -146,11 +162,13 @@ winget-releaser auto-triggers → publishes to Windows Package Manager
 ---
 
 ### 5. **release-please.yml** - No changes
+
 Uses existing conventional commit detection.
 
 ---
 
 ### 6. **build-release.yml** - Minor changes
+
 - Installer tests now report results in PR comment
 - Tests must pass (workflow fails if integrity/install tests fail)
 - You can still ignore failures and merge if needed (emergency override)
@@ -185,7 +203,7 @@ graph TD
 ## Key Timings
 
 | Step | Duration | Notes |
-|------|----------|-------|
+| ------ | ---------- | ------- |
 | Push to main | Immediate | Nightly build starts ~5s |
 | Nightly build complete | ~5 minutes | (Includes installer tests) |
 | release-please creates PR | ~30 seconds | After your last commit |
@@ -200,14 +218,17 @@ graph TD
 ## Files Modified
 
 ### Workflows Updated
+
 - `test.yml` - Added paths-ignore for docs
 - `build-release.yml` - Added integrity + smoke tests
 
 ### Workflows Created
+
 - `nightly-build.yml` - Auto pre-release builds
 - `release-approval.yml` - Smart approval gate
 
 ### No Changes
+
 - `release-please.yml` - Works as before
 - `winget-releaser.yml` - Triggers on published releases
 
@@ -226,6 +247,7 @@ Go to GitHub → Settings → Labels and create this label:
 ## Testing the New Workflows
 
 ### Test 1: Nightly Build
+
 ```bash
 git commit -m "feat: Add test feature"
 git push origin main
@@ -234,11 +256,14 @@ git push origin main
 ```
 
 ### Test 2: Release Tests
+
 Create a release-please PR manually (trigger main push):
+
 - Verify installer tests run on PR
 - Check PR comment shows test results
 
 ### Test 3: Approval Flow
+
 - Create a branch with a test commit (feat: or fix:)
 - Create a draft PR
 - Simulate by manually triggering workflows
@@ -248,16 +273,19 @@ Create a release-please PR manually (trigger main push):
 ## Troubleshooting
 
 ### Nightly build not triggering?
+
 - Commit message must start with `feat:` or `fix:`
 - Must be pushed to `main` branch
 - Check Actions tab for workflow status
 
 ### Release tests failing?
+
 - Check installer build logs
 - Verify InnoSetup compiled valid EXE
 - Smoke test failure means the app crashes on launch
 
 ### Auto-merge not working?
+
 - Ensure label `approved-for-release` exists
 - Ensure PR is from release-please[bot]
 - Check if PR has merge conflicts
@@ -267,6 +295,7 @@ Create a release-please PR manually (trigger main push):
 ## Future Enhancements
 
 If needed later, consider:
+
 1. ✅ Dependabot for dependency updates (not urgent)
 2. ✅ Scheduled macOS/Linux builds (no current support)
 3. ✅ Signed installers (Windows Code Signing Certificate)
@@ -278,6 +307,7 @@ If needed later, consider:
 ## Summary
 
 You now have:
+
 - ✅ **Faster tests** (skip docs)
 - ✅ **Safer releases** (hybrid installer testing)
 - ✅ **Nightly builds** (auto pre-releases for testing)

@@ -5,12 +5,14 @@ The new release approval workflow requires one GitHub label to function. Follow 
 ### Step-by-Step Instructions
 
 #### 1. Go to GitHub Repository Settings
-- Navigate to: https://github.com/conventoangelo/OverKeys/settings/labels
+
+- Navigate to: <https://github.com/conventoangelo/OverKeys/settings/labels>
 - Or: Repo → Settings → Labels
 
 #### 2. Click "New label"
 
 #### 3. Fill in the Details
+
 - **Label name:** `approved-for-release`
 - **Description:** Approved for automatic merge and release publication
 - **Color:** #28a745 (green) or any color you prefer
@@ -18,6 +20,7 @@ The new release approval workflow requires one GitHub label to function. Follow 
 #### 4. Click "Create label"
 
 #### 5. Verify
+
 You should now see `approved-for-release` in your labels list.
 
 ---
@@ -40,12 +43,15 @@ When you want to publish a release:
 ### Optional: Add Label to Multiple Places
 
 #### Add to PR Templates
+
 If you have a PR template, you can suggest this label in the release-please PR by adding to the template:
+
 ```markdown
 - [ ] Mark as approved-for-release when ready to publish
 ```
 
 #### Add to Release Instructions
+
 You can also pin instructions in a GitHub discussion or repository wiki.
 
 ---

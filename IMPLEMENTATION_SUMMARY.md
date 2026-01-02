@@ -9,6 +9,7 @@
 ## Changes Made
 
 ### 1. **test.yml** - Optimized Test Workflow ✅
+
 **Lines Changed:** 8-14  
 **What:** Added `paths-ignore` to skip tests on documentation-only changes
 
@@ -27,6 +28,7 @@ on:
 ```
 
 **Impact:**
+
 - ✅ Pushes to README.md skip test workflow (saves ~10 min)
 - ✅ Code changes still trigger tests
 - ✅ PR approvals faster for doc updates
@@ -34,10 +36,12 @@ on:
 ---
 
 ### 2. **build-release.yml** - Enhanced Installer Testing ✅
+
 **Lines Changed:** 58-255  
 **What:** Added comprehensive hybrid installer testing
 
-#### New Test Steps:
+#### New Test Steps
+
 1. **Test installer integrity** (lines 58-100)
    - Verifies EXE/ZIP files exist
    - Checks file sizes (EXE > 10MB, ZIP > 5MB)
@@ -61,13 +65,15 @@ on:
    - Guides next steps
 
 **Impact:**
+
 - ✅ Catches installer corruption early
 - ✅ Detects missing files before release
 - ✅ Verifies app launches successfully
 - ✅ You only approve releases with passing tests
 
 **Test Output Example:**
-```
+
+``` text
 ## Release Installers Built
 
 **Version:** `v0.3.3`
@@ -87,11 +93,13 @@ on:
 ---
 
 ### 3. **nightly-build.yml** - Auto Pre-release Builds ⭐ NEW ✅
+
 **Lines:** 1-227  
 **What:** Automatically builds and publishes nightly pre-releases
 
-#### How it works:
-```
+#### How it works
+
+``` text
 You push "feat: Add feature" to main
     ↓
 Workflow detects "feat:" prefix
@@ -107,7 +115,8 @@ Marked as pre-release (not "latest")
 Users can download to test
 ```
 
-#### Features:
+#### Features
+
 - **Auto-triggered** on feat: and fix: commits
 - **Versioned** with date and commit SHA
 - **Tested** before release
@@ -117,6 +126,7 @@ Users can download to test
 **GitHub Release Label:** `🌙 Nightly: feat-nightly.20260102-abc1234`
 
 **Impact:**
+
 - ✅ Early testing feedback loop
 - ✅ Users can verify features before official release
 - ✅ Zero manual configuration needed
@@ -125,11 +135,13 @@ Users can download to test
 ---
 
 ### 4. **release-approval.yml** - Smart Approval Gate ⭐ NEW ✅
+
 **Lines:** 1-185  
 **What:** Implements label-based approval workflow for releases
 
-#### Release Flow:
-```
+#### Release Flow
+
+``` text
 release-please creates PR: "chore: release v0.3.3"
     ↓
 release-approval.yml adds instructions comment
@@ -150,7 +162,8 @@ Workflow publishes draft (makes it public)
 winget-releaser auto-triggers (via release event)
 ```
 
-#### Key Features:
+#### Key Features
+
 - **Instruction Comments** - Guides the approval process
 - **Label-based Gate** - No need to click GitHub buttons
 - **Auto-merge** - Removes manual merge step
@@ -158,6 +171,7 @@ winget-releaser auto-triggers (via release event)
 - **Safe** - Still gives you review time
 
 **Impact:**
+
 - ✅ One-step approval (add label)
 - ✅ No need to manually publish releases
 - ✅ Consistent release process
@@ -168,6 +182,7 @@ winget-releaser auto-triggers (via release event)
 ### 5. **Documentation** - User Guides ✅ NEW
 
 #### **CI_CD_REVAMP_GUIDE.md**
+
 - 📋 Complete workflow documentation
 - 🔄 End-to-end release flow diagrams
 - ⏱️ Timing expectations
@@ -175,6 +190,7 @@ winget-releaser auto-triggers (via release event)
 - 🚀 Future enhancement ideas
 
 #### **CICD_QUICK_REFERENCE.md**
+
 - ✓ Release checklist
 - 📊 Workflow reference table
 - ⏳ Typical timeline
@@ -186,7 +202,7 @@ winget-releaser auto-triggers (via release event)
 ## Files Modified Summary
 
 | File | Changes | Impact |
-|------|---------|--------|
+| ------ | --------- | -------- |
 | `.github/workflows/test.yml` | Added paths-ignore | Skip tests on docs |
 | `.github/workflows/build-release.yml` | Added 3 test jobs | Validate installers before release |
 | `.github/workflows/nightly-build.yml` | ⭐ NEW | Auto pre-release builds |
@@ -212,7 +228,7 @@ This label tells the release-approval workflow to proceed with merging and publi
 ## Release Timeline (New)
 
 | Time | Step | Duration |
-|------|------|----------|
+| ------ | ------ | ---------- |
 | T+0 | Push feat/fix to main | Immediate |
 | T+1 | Nightly build starts | ~5 minutes |
 | T+5 | Nightly pre-release available | Users can download |
@@ -230,14 +246,16 @@ This label tells the release-approval workflow to proceed with merging and publi
 
 ## Key Improvements
 
-### Before Revamp:
+### Before Revamp
+
 ❌ All commits trigger tests (even doc-only)  
 ❌ No pre-release/nightly builds  
 ❌ Manual installer verification  
 ❌ Manual GitHub release publishing  
 ❌ Confusing release workflow  
 
-### After Revamp:
+### After Revamp
+
 ✅ Docs skip tests (faster feedback)  
 ✅ Auto nightly builds for testing  
 ✅ Automated installer validation (integrity + smoke test)  
@@ -250,6 +268,7 @@ This label tells the release-approval workflow to proceed with merging and publi
 ## Testing Recommendations
 
 ### Test 1: Verify doc-only changes skip tests
+
 ```bash
 # Edit CHANGELOG.md or README.md
 git add CHANGELOG.md
@@ -259,6 +278,7 @@ git push origin main
 ```
 
 ### Test 2: Trigger nightly build
+
 ```bash
 git commit -m "feat: test feature"
 git push origin main
@@ -267,6 +287,7 @@ git push origin main
 ```
 
 ### Test 3: Test release approval flow
+
 - Create a release-please PR (happens automatically on next push)
 - Check PR comment for instructions
 - Verify installer tests run
@@ -278,6 +299,7 @@ git push origin main
 ## Next Steps
 
 1. **Commit changes** to your repository
+
    ```bash
    git add .github/workflows/ CI_CD_REVAMP_GUIDE.md CICD_QUICK_REFERENCE.md
    git commit -m "ci: revamp cicd pipeline with nightly builds and approval gates"
@@ -319,6 +341,7 @@ git push
 ## Support & Questions
 
 For detailed information, see:
+
 - **Full Guide:** CI_CD_REVAMP_GUIDE.md
 - **Quick Ref:** CICD_QUICK_REFERENCE.md
 - **Workflow Logs:** GitHub Actions tab

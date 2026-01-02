@@ -2,8 +2,9 @@
 
 ## Your Release Checklist
 
-### When you merge a feature to main:
-```
+### When you merge a feature to main
+
+``` text
 ✅ Feature merged to main
    ↓
 🌙 Nightly build automatically created
@@ -13,8 +14,9 @@
    (marked as unstable/pre-release)
 ```
 
-### When you're ready to release:
-```
+### When you're ready to release
+
+``` text
 ✅ Work on main branch with conventional commits
    (feat: ... or fix: ... or chore: ...)
    
@@ -42,7 +44,7 @@
 ## Workflow Files
 
 | File | Trigger | Purpose | When to Check |
-|------|---------|---------|--------------|
+| ------ | --------- | --------- | -------------- |
 | `test.yml` | Push/PR | Unit tests + code quality | On every code change |
 | `nightly-build.yml` | Push to main (feat:/fix:) | Pre-release builds | After merging features |
 | `build-release.yml` | Release-please PR + Release event | Installer building + testing | During release process |
@@ -64,7 +66,7 @@ Before first release, create this GitHub label:
 
 ## Typical Timeline
 
-```
+``` text
 Monday 10:00 AM
 ├─ You finish feature
 └─ git commit -m "feat: Add custom hotkeys"
@@ -99,17 +101,20 @@ Wednesday 2:20 PM
 ## Monitoring
 
 ### Check installer tests
+
 1. Go to pull request created by `release-please[bot]`
 2. Scroll to **Comments section**
 3. Look for comment: "## Release Installers Built"
 4. Check test status: ✅ PASSED or ❌ FAILED
 
 ### Check nightly builds  
+
 1. Go to **Actions** tab
 2. Filter by **nightly-build.yml**
 3. Click on run → see artifacts
 
 ### Check releases
+
 1. Go to **Releases** page
 2. Look for `🌙 Nightly: ...` (pre-releases)
 3. Look for `v0.x.x` (official releases)
@@ -120,16 +125,18 @@ Wednesday 2:20 PM
 
 If automated tests pass but you find an issue:
 
-**Option 1: Fix and re-run**
-```
+### Option 1: Fix and re-run
+
+``` text
 Fix the issue in a new commit
 git push origin main
   → release-please creates a patch PR automatically
   → Tests run again
 ```
 
-**Option 2: Emergency publish (not recommended)**
-```
+### Option 2: Emergency publish (not recommended)
+
+``` text
 GitHub web UI → Releases
 Click "Edit" on draft release
 Click "Publish release" manually
@@ -145,12 +152,14 @@ A: Documentation changes don't affect code, so testing wastes CI resources.
 
 **Q: What if installer tests fail?**  
 A: Check the PR comment for failure details. Common issues:
+
 - Missing dependency (install InnoSetup manually)
 - Build corruption (rebuild from source)
 - App crash on launch (fix the code)
 
 **Q: Can I manually build installers?**  
 A: Yes! Use the scripts in `/scripts` folder locally:
+
 ```powershell
 .\scripts\build_windows.ps1
 .\scripts\compile_installer.ps1
@@ -167,6 +176,7 @@ A: Yes, just don't start with `feat:` or `fix:`. Use `chore:` or other prefixes.
 ## Support
 
 For issues, check:
+
 1. Actions tab → Workflow logs
 2. PR comments → Installer test results  
 3. Releases page → Pre-releases vs official

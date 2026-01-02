@@ -9,6 +9,7 @@ All workflows have been updated and documented. Follow this checklist to deploy.
 ## Pre-Deployment Checklist
 
 ### Code Review
+
 - [ ] Review all modified workflow files:
   - [ ] `.github/workflows/test.yml` - doc skip optimization
   - [ ] `.github/workflows/build-release.yml` - installer testing added
@@ -16,12 +17,14 @@ All workflows have been updated and documented. Follow this checklist to deploy.
   - [ ] `.github/workflows/release-approval.yml` - ⭐ NEW
 
 ### Documentation Review  
+
 - [ ] Read `CI_CD_REVAMP_GUIDE.md` - full overview
 - [ ] Read `CICD_QUICK_REFERENCE.md` - quick reference
 - [ ] Read `IMPLEMENTATION_SUMMARY.md` - what changed
 - [ ] Read `SETUP_GITHUB_LABEL.md` - label setup instructions
 
 ### Team Communication (if applicable)
+
 - [ ] Share documentation with team
 - [ ] Explain new release workflow
 - [ ] Clarify what changed and why
@@ -31,6 +34,7 @@ All workflows have been updated and documented. Follow this checklist to deploy.
 ## Deployment Steps
 
 ### Step 1: Commit to Git
+
 ```bash
 cd c:\Users\conve\GitHub\OverKeys
 
@@ -55,7 +59,8 @@ git push origin main
 ```
 
 ### Step 2: Create GitHub Label
-1. Go to: https://github.com/conventoangelo/OverKeys/settings/labels
+
+1. Go to: <https://github.com/conventoangelo/OverKeys/settings/labels>
 2. Click "New label"
 3. Fill in:
    - **Name:** `approved-for-release`
@@ -64,7 +69,8 @@ git push origin main
 4. Click "Create label"
 
 ### Step 3: Verify Workflows
-1. Go to Actions tab: https://github.com/conventoangelo/OverKeys/actions
+
+1. Go to Actions tab: <https://github.com/conventoangelo/OverKeys/actions>
 2. Look for recent workflow runs
 3. Verify no errors (green checkmarks ✅)
 4. Test runs should show:
@@ -76,6 +82,7 @@ git push origin main
 ## Post-Deployment Testing
 
 ### Test 1: Doc-Only Changes (should skip tests)
+
 ```bash
 # Create a test branch
 git checkout -b test/doc-skip
@@ -96,6 +103,7 @@ git branch -d test/doc-skip
 **Expected Result:** Actions tab shows NO test workflow run
 
 ### Test 2: Nightly Build Trigger
+
 ```bash
 # Create a test branch
 git checkout -b test/nightly
@@ -118,6 +126,7 @@ git branch -d test/nightly
 **Expected Result:** Pre-release created on Releases page marked 🌙 Nightly
 
 ### Test 3: Release Approval Flow
+
 ```bash
 # Push a regular commit to main (triggers release-please)
 git commit -m "feat: test release feature" --allow-empty
@@ -165,18 +174,22 @@ git push origin main
 ## Post-Deployment Validation
 
 ### Verify Changes Landed
-- [ ] Check: https://github.com/conventoangelo/OverKeys/tree/main/.github/workflows
+
+- [ ] Check: <https://github.com/conventoangelo/OverKeys/tree/main/.github/workflows>
 - [ ] Confirm all 6 workflow files exist
 - [ ] Confirm new files: nightly-build.yml, release-approval.yml
 - [ ] Confirm edits to: test.yml, build-release.yml
 
 ### Verify Label Created
-- [ ] Check: https://github.com/conventoangelo/OverKeys/labels
+
+- [ ] Check: <https://github.com/conventoangelo/OverKeys/labels>
 - [ ] Confirm `approved-for-release` label exists
 - [ ] Label color is visible (green or chosen color)
 
 ### Monitor First Release
+
 When creating first release post-deployment:
+
 - [ ] Watch Actions tab for all workflow runs
 - [ ] Verify test.yml runs on any code changes
 - [ ] Verify build-release.yml installer tests pass
@@ -202,21 +215,28 @@ You'll know deployment is successful when:
 ## Common Post-Deployment Issues
 
 ### Issue 1: Nightly build not triggering
+
 **Solution:** Verify commit message starts with `feat:` or `fix:`
+
 ```bash
 git log --oneline -1
 # Should show: feat: ... or fix: ...
 ```
 
 ### Issue 2: Installer tests timeout
+
 **Solution:** Increase timeout in build-release.yml
+
 - Change `timeout-minutes: 30` to `timeout-minutes: 45`
 
 ### Issue 3: Release-approval workflow doesn't trigger
+
 **Solution:** Ensure label name is exactly `approved-for-release` (no typos)
 
 ### Issue 4: Auto-merge fails on release PR
+
 **Solution:** Check for merge conflicts or required status checks
+
 - Ensure PR is mergeable before adding label
 
 ---
@@ -226,7 +246,7 @@ git log --oneline -1
 For reference, these documents were created:
 
 | File | Purpose |
-|------|---------|
+| ------ | --------- |
 | `CI_CD_REVAMP_GUIDE.md` | Complete implementation guide with diagrams |
 | `CICD_QUICK_REFERENCE.md` | One-page quick reference for daily use |
 | `IMPLEMENTATION_SUMMARY.md` | Technical details of what changed |
