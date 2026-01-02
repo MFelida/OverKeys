@@ -26,7 +26,7 @@ class _MarkersTabState extends ConsumerState<MarkersTab> {
   void initState() {
     super.initState();
     // Initialize with current provider values
-    final keyboardState = ref.read(keyboardNotifierProvider);
+    final keyboardState = ref.read(keyboardProvider);
     _localMarkerOffset = keyboardState.markerOffset;
     _localMarkerWidth = keyboardState.markerWidth;
     _localMarkerHeight = keyboardState.markerHeight;
@@ -35,10 +35,10 @@ class _MarkersTabState extends ConsumerState<MarkersTab> {
 
   @override
   Widget build(BuildContext context) {
-    final prefsState = ref.watch(preferencesNotifierProvider);
+    final prefsState = ref.watch(preferencesProvider);
 
     // Listen for external provider changes and sync local state
-    ref.listen<KeyboardState>(keyboardNotifierProvider, (previous, next) {
+    ref.listen<KeyboardState>(keyboardProvider, (previous, next) {
       if (previous != null) {
         if (_localMarkerOffset != next.markerOffset) {
           setState(() => _localMarkerOffset = next.markerOffset);
@@ -69,7 +69,7 @@ class _MarkersTabState extends ConsumerState<MarkersTab> {
           },
           onChangeEnd: (value) {
             ref
-                .read(keyboardNotifierProvider.notifier)
+                .read(keyboardProvider.notifier)
                 .updateMarkerOffset(value);
             widget.onUpdateMainWindow('updateMarkerOffset', value);
           },
@@ -88,7 +88,7 @@ class _MarkersTabState extends ConsumerState<MarkersTab> {
           },
           onChangeEnd: (value) {
             ref
-                .read(keyboardNotifierProvider.notifier)
+                .read(keyboardProvider.notifier)
                 .updateMarkerWidth(value);
             widget.onUpdateMainWindow('updateMarkerWidth', value);
           },
@@ -107,7 +107,7 @@ class _MarkersTabState extends ConsumerState<MarkersTab> {
           },
           onChangeEnd: (value) {
             ref
-                .read(keyboardNotifierProvider.notifier)
+                .read(keyboardProvider.notifier)
                 .updateMarkerHeight(value);
             widget.onUpdateMainWindow('updateMarkerHeight', value);
           },
@@ -123,7 +123,7 @@ class _MarkersTabState extends ConsumerState<MarkersTab> {
           },
           onChangeEnd: (value) {
             ref
-                .read(keyboardNotifierProvider.notifier)
+                .read(keyboardProvider.notifier)
                 .updateMarkerBorderRadius(value);
             widget.onUpdateMainWindow('updateMarkerBorderRadius', value);
           },

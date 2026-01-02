@@ -15,7 +15,7 @@ class WindowService {
 
   /// Adjusts window size based on keyboard layout configuration
   Future<void> adjustWindowSize(WidgetRef ref) async {
-    final keyboardState = ref.read(keyboardNotifierProvider);
+    final keyboardState = ref.read(keyboardProvider);
 
     final height = keyboardState.showTopRow
         ? defaultWindowHeight + defaultTopRowExtraHeight

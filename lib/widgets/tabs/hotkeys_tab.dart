@@ -16,7 +16,7 @@ class HotKeysTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final appState = ref.watch(appStateNotifierProvider);
+    final appState = ref.watch(appStateProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -26,7 +26,7 @@ class HotKeysTab extends ConsumerWidget {
             value: appState.hotKeysEnabled,
             onChanged: (value) {
               ref
-                  .read(appStateNotifierProvider.notifier)
+                  .read(appStateProvider.notifier)
                   .updateHotKeysEnabled(value);
               onUpdateMainWindow('updateHotKeysEnabled', value);
             }),
@@ -38,7 +38,7 @@ class HotKeysTab extends ConsumerWidget {
           enabled: appState.enableVisibilityHotKey,
           onToggleChanged: (value) {
             ref
-                .read(appStateNotifierProvider.notifier)
+                .read(appStateProvider.notifier)
                 .updateEnableVisibilityHotKey(value);
             onUpdateMainWindow('updateEnableVisibilityHotKey', value);
           },
@@ -46,7 +46,7 @@ class HotKeysTab extends ConsumerWidget {
             context,
             (value) {
               ref
-                  .read(appStateNotifierProvider.notifier)
+                  .read(appStateProvider.notifier)
                   .updateVisibilityHotKey(value);
               onUpdateMainWindow('updateVisibilityHotKey', value);
             },
@@ -64,7 +64,7 @@ class HotKeysTab extends ConsumerWidget {
           enabled: appState.enableAutoHideHotKey,
           onToggleChanged: (value) {
             ref
-                .read(appStateNotifierProvider.notifier)
+                .read(appStateProvider.notifier)
                 .updateEnableAutoHideHotKey(value);
             onUpdateMainWindow('updateEnableAutoHideHotKey', value);
           },
@@ -72,7 +72,7 @@ class HotKeysTab extends ConsumerWidget {
             context,
             (value) {
               ref
-                  .read(appStateNotifierProvider.notifier)
+                  .read(appStateProvider.notifier)
                   .updateAutoHideHotKey(value);
               onUpdateMainWindow('updateAutoHideHotKey', value);
             },
@@ -90,7 +90,7 @@ class HotKeysTab extends ConsumerWidget {
           enabled: appState.enableToggleMoveHotKey,
           onToggleChanged: (value) {
             ref
-                .read(appStateNotifierProvider.notifier)
+                .read(appStateProvider.notifier)
                 .updateEnableToggleMoveHotKey(value);
             onUpdateMainWindow('updateEnableToggleMoveHotKey', value);
           },
@@ -98,7 +98,7 @@ class HotKeysTab extends ConsumerWidget {
             context,
             (value) {
               ref
-                  .read(appStateNotifierProvider.notifier)
+                  .read(appStateProvider.notifier)
                   .updateToggleMoveHotKey(value);
               onUpdateMainWindow('updateToggleMoveHotKey', value);
             },
@@ -116,7 +116,7 @@ class HotKeysTab extends ConsumerWidget {
           enabled: appState.enablePreferencesHotKey,
           onToggleChanged: (value) {
             ref
-                .read(appStateNotifierProvider.notifier)
+                .read(appStateProvider.notifier)
                 .updateEnablePreferencesHotKey(value);
             onUpdateMainWindow('updateEnablePreferencesHotKey', value);
           },
@@ -124,7 +124,7 @@ class HotKeysTab extends ConsumerWidget {
             context,
             (value) {
               ref
-                  .read(appStateNotifierProvider.notifier)
+                  .read(appStateProvider.notifier)
                   .updatePreferencesHotKey(value);
               onUpdateMainWindow('updatePreferencesHotKey', value);
             },
@@ -142,7 +142,7 @@ class HotKeysTab extends ConsumerWidget {
           enabled: appState.enableIncreaseOpacityHotKey,
           onToggleChanged: (value) {
             ref
-                .read(appStateNotifierProvider.notifier)
+                .read(appStateProvider.notifier)
                 .updateEnableIncreaseOpacityHotKey(value);
             onUpdateMainWindow('updateEnableIncreaseOpacityHotKey', value);
           },
@@ -150,7 +150,7 @@ class HotKeysTab extends ConsumerWidget {
             context,
             (value) {
               ref
-                  .read(appStateNotifierProvider.notifier)
+                  .read(appStateProvider.notifier)
                   .updateIncreaseOpacityHotKey(value);
               onUpdateMainWindow('updateIncreaseOpacityHotKey', value);
             },
@@ -168,7 +168,7 @@ class HotKeysTab extends ConsumerWidget {
           enabled: appState.enableDecreaseOpacityHotKey,
           onToggleChanged: (value) {
             ref
-                .read(appStateNotifierProvider.notifier)
+                .read(appStateProvider.notifier)
                 .updateEnableDecreaseOpacityHotKey(value);
             onUpdateMainWindow('updateEnableDecreaseOpacityHotKey', value);
           },
@@ -176,7 +176,7 @@ class HotKeysTab extends ConsumerWidget {
             context,
             (value) {
               ref
-                  .read(appStateNotifierProvider.notifier)
+                  .read(appStateProvider.notifier)
                   .updateDecreaseOpacityHotKey(value);
               onUpdateMainWindow('updateDecreaseOpacityHotKey', value);
             },

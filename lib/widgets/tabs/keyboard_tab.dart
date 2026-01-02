@@ -31,7 +31,7 @@ class _KeyboardTabState extends ConsumerState<KeyboardTab> {
   void initState() {
     super.initState();
     // Initialize with current provider values
-    final keyboardState = ref.read(keyboardNotifierProvider);
+    final keyboardState = ref.read(keyboardProvider);
     _localKeySize = keyboardState.keySize;
     _localKeyBorderRadius = keyboardState.keyBorderRadius;
     _localKeyBorderThickness = keyboardState.keyBorderThickness;
@@ -46,10 +46,10 @@ class _KeyboardTabState extends ConsumerState<KeyboardTab> {
 
   @override
   Widget build(BuildContext context) {
-    final keyboardState = ref.watch(keyboardNotifierProvider);
+    final keyboardState = ref.watch(keyboardProvider);
 
     // Listen for external provider changes and sync local state
-    ref.listen<KeyboardState>(keyboardNotifierProvider, (previous, next) {
+    ref.listen<KeyboardState>(keyboardProvider, (previous, next) {
       if (previous != null) {
         if (_localKeySize != next.keySize) {
           setState(() => _localKeySize = next.keySize);
@@ -96,13 +96,13 @@ class _KeyboardTabState extends ConsumerState<KeyboardTab> {
               if (_localSpaceWidth > 300) {
                 setState(() => _localSpaceWidth = 220);
                 ref
-                    .read(keyboardNotifierProvider.notifier)
+                    .read(keyboardProvider.notifier)
                     .updateSpaceWidth(220);
                 widget.onUpdateMainWindow('updateSpaceWidth', 220);
               }
             }
             ref
-                .read(keyboardNotifierProvider.notifier)
+                .read(keyboardProvider.notifier)
                 .updateKeymapStyle(value!);
             widget.onUpdateMainWindow('updateKeymapStyle', value);
           },
@@ -113,7 +113,7 @@ class _KeyboardTabState extends ConsumerState<KeyboardTab> {
           subtitle:
               'Recommended to toggle when keyboard is visible or auto-hide is off. Toggling while hidden may cause rendering errors.',
           onChanged: (value) {
-            ref.read(keyboardNotifierProvider.notifier).updateShowTopRow(value);
+            ref.read(keyboardProvider.notifier).updateShowTopRow(value);
             widget.onUpdateMainWindow('updateShowTopRow', value);
           },
         ),
@@ -125,7 +125,7 @@ class _KeyboardTabState extends ConsumerState<KeyboardTab> {
             value: keyboardState.showGraveKey,
             onChanged: (value) {
               ref
-                  .read(keyboardNotifierProvider.notifier)
+                  .read(keyboardProvider.notifier)
                   .updateShowGraveKey(value);
               widget.onUpdateMainWindow('updateShowGraveKey', value);
             },
@@ -149,7 +149,7 @@ class _KeyboardTabState extends ConsumerState<KeyboardTab> {
             },
             onChangeEnd: (value) {
               ref
-                  .read(keyboardNotifierProvider.notifier)
+                  .read(keyboardProvider.notifier)
                   .updateSplitWidth(value);
               widget.onUpdateMainWindow('updateSplitWidth', value);
             },
@@ -173,7 +173,7 @@ class _KeyboardTabState extends ConsumerState<KeyboardTab> {
             },
             onChangeEnd: (value) {
               ref
-                  .read(keyboardNotifierProvider.notifier)
+                  .read(keyboardProvider.notifier)
                   .updateLastRowSplitWidth(value);
               widget.onUpdateMainWindow('updateLastRowSplitWidth', value);
             },
@@ -193,7 +193,7 @@ class _KeyboardTabState extends ConsumerState<KeyboardTab> {
             setState(() => _localKeySize = value);
           },
           onChangeEnd: (value) {
-            ref.read(keyboardNotifierProvider.notifier).updateKeySize(value);
+            ref.read(keyboardProvider.notifier).updateKeySize(value);
             widget.onUpdateMainWindow('updateKeySize', value);
           },
         ),
@@ -208,7 +208,7 @@ class _KeyboardTabState extends ConsumerState<KeyboardTab> {
           },
           onChangeEnd: (value) {
             ref
-                .read(keyboardNotifierProvider.notifier)
+                .read(keyboardProvider.notifier)
                 .updateKeyBorderRadius(value);
             widget.onUpdateMainWindow('updateKeyBorderRadius', value);
           },
@@ -224,7 +224,7 @@ class _KeyboardTabState extends ConsumerState<KeyboardTab> {
           },
           onChangeEnd: (value) {
             ref
-                .read(keyboardNotifierProvider.notifier)
+                .read(keyboardProvider.notifier)
                 .updateKeyBorderThickness(value);
             widget.onUpdateMainWindow('updateKeyBorderThickness', value);
           },
@@ -239,7 +239,7 @@ class _KeyboardTabState extends ConsumerState<KeyboardTab> {
             setState(() => _localKeyPadding = value);
           },
           onChangeEnd: (value) {
-            ref.read(keyboardNotifierProvider.notifier).updateKeyPadding(value);
+            ref.read(keyboardProvider.notifier).updateKeyPadding(value);
             widget.onUpdateMainWindow('updateKeyPadding', value);
           },
         ),
@@ -253,7 +253,7 @@ class _KeyboardTabState extends ConsumerState<KeyboardTab> {
             setState(() => _localSpaceWidth = value);
           },
           onChangeEnd: (value) {
-            ref.read(keyboardNotifierProvider.notifier).updateSpaceWidth(value);
+            ref.read(keyboardProvider.notifier).updateSpaceWidth(value);
             widget.onUpdateMainWindow('updateSpaceWidth', value);
           },
         ),
@@ -268,7 +268,7 @@ class _KeyboardTabState extends ConsumerState<KeyboardTab> {
           },
           onChangeEnd: (value) {
             ref
-                .read(keyboardNotifierProvider.notifier)
+                .read(keyboardProvider.notifier)
                 .updateKeyShadowBlurRadius(value);
             widget.onUpdateMainWindow('updateKeyShadowBlurRadius', value);
           },
@@ -284,7 +284,7 @@ class _KeyboardTabState extends ConsumerState<KeyboardTab> {
           },
           onChangeEnd: (value) {
             ref
-                .read(keyboardNotifierProvider.notifier)
+                .read(keyboardProvider.notifier)
                 .updateKeyShadowOffsetX(value);
             widget.onUpdateMainWindow('updateKeyShadowOffsetX', value);
           },
@@ -300,7 +300,7 @@ class _KeyboardTabState extends ConsumerState<KeyboardTab> {
           },
           onChangeEnd: (value) {
             ref
-                .read(keyboardNotifierProvider.notifier)
+                .read(keyboardProvider.notifier)
                 .updateKeyShadowOffsetY(value);
             widget.onUpdateMainWindow('updateKeyShadowOffsetY', value);
           },

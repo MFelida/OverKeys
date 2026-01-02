@@ -12,8 +12,8 @@ class KeyboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final keyboardState = ref.watch(keyboardNotifierProvider);
-    final prefsState = ref.watch(preferencesNotifierProvider);
+    final keyboardState = ref.watch(keyboardProvider);
+    final prefsState = ref.watch(preferencesProvider);
 
     return Center(
       child: Column(

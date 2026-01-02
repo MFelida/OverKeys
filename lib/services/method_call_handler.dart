@@ -44,9 +44,9 @@ class MethodCallHandler {
     Function() clearConfigCache,
     Function() loadAllConfiguration,
   ) async {
-    final keyboardNotifier = ref.read(keyboardNotifierProvider.notifier);
-    final prefsNotifier = ref.read(preferencesNotifierProvider.notifier);
-    final appNotifier = ref.read(appStateNotifierProvider.notifier);
+    final keyboardNotifier = ref.read(keyboardProvider.notifier);
+    final prefsNotifier = ref.read(preferencesProvider.notifier);
+    final appNotifier = ref.read(appStateProvider.notifier);
 
     switch (call.method) {
       // General settings
@@ -82,8 +82,8 @@ class MethodCallHandler {
 
       case 'updateLayout':
         final layoutName = _safeArgument<String>(call.arguments, 'QWERTY');
-        final prefsState = ref.read(preferencesNotifierProvider);
-        final keyboardState = ref.read(keyboardNotifierProvider);
+        final prefsState = ref.read(preferencesProvider);
+        final keyboardState = ref.read(keyboardProvider);
         final layout =
             availableLayouts.firstWhere((layout) => layout.name == layoutName);
 
@@ -155,7 +155,7 @@ class MethodCallHandler {
       // Text settings
       case 'updateFontFamily':
         final fontFamily = _safeArgument<String>(call.arguments, '');
-        final prefsState = ref.read(preferencesNotifierProvider);
+        final prefsState = ref.read(preferencesProvider);
         keyboardNotifier.updateFontFamily(fontFamily);
         if (!(prefsState.customFontEnabled &&
             prefsState.advancedSettingsEnabled)) {
@@ -260,7 +260,7 @@ class MethodCallHandler {
         final hotKeyJson = _safeArgument<String>(call.arguments, '{}');
         final newHotKey = HotKey.fromJson(jsonDecode(hotKeyJson));
         final currentVisibilityHotKey =
-            ref.read(appStateNotifierProvider).visibilityHotKey;
+            ref.read(appStateProvider).visibilityHotKey;
         if (currentVisibilityHotKey != null) {
           await hotKeyManager.unregister(currentVisibilityHotKey);
         }
@@ -271,7 +271,7 @@ class MethodCallHandler {
         final hotKeyJson = _safeArgument<String>(call.arguments, '{}');
         final newHotKey = HotKey.fromJson(jsonDecode(hotKeyJson));
         final currentAutoHideHotKey =
-            ref.read(appStateNotifierProvider).autoHideHotKey;
+            ref.read(appStateProvider).autoHideHotKey;
         if (currentAutoHideHotKey != null) {
           await hotKeyManager.unregister(currentAutoHideHotKey);
         }
@@ -282,7 +282,7 @@ class MethodCallHandler {
         final hotKeyJson = _safeArgument<String>(call.arguments, '{}');
         final newHotKey = HotKey.fromJson(jsonDecode(hotKeyJson));
         final currentToggleMoveHotKey =
-            ref.read(appStateNotifierProvider).toggleMoveHotKey;
+            ref.read(appStateProvider).toggleMoveHotKey;
         if (currentToggleMoveHotKey != null) {
           await hotKeyManager.unregister(currentToggleMoveHotKey);
         }
@@ -293,7 +293,7 @@ class MethodCallHandler {
         final hotKeyJson = _safeArgument<String>(call.arguments, '{}');
         final newHotKey = HotKey.fromJson(jsonDecode(hotKeyJson));
         final currentPreferencesHotKey =
-            ref.read(appStateNotifierProvider).preferencesHotKey;
+            ref.read(appStateProvider).preferencesHotKey;
         if (currentPreferencesHotKey != null) {
           await hotKeyManager.unregister(currentPreferencesHotKey);
         }
@@ -304,7 +304,7 @@ class MethodCallHandler {
         final hotKeyJson = _safeArgument<String>(call.arguments, '{}');
         final newHotKey = HotKey.fromJson(jsonDecode(hotKeyJson));
         final currentIncreaseOpacityHotKey =
-            ref.read(appStateNotifierProvider).increaseOpacityHotKey;
+            ref.read(appStateProvider).increaseOpacityHotKey;
         if (currentIncreaseOpacityHotKey != null) {
           await hotKeyManager.unregister(currentIncreaseOpacityHotKey);
         }
@@ -315,7 +315,7 @@ class MethodCallHandler {
         final hotKeyJson = _safeArgument<String>(call.arguments, '{}');
         final newHotKey = HotKey.fromJson(jsonDecode(hotKeyJson));
         final currentDecreaseOpacityHotKey =
-            ref.read(appStateNotifierProvider).decreaseOpacityHotKey;
+            ref.read(appStateProvider).decreaseOpacityHotKey;
         if (currentDecreaseOpacityHotKey != null) {
           await hotKeyManager.unregister(currentDecreaseOpacityHotKey);
         }
@@ -394,8 +394,8 @@ class MethodCallHandler {
         final advancedSettingsEnabled =
             _safeArgument<bool>(call.arguments, false);
         prefsNotifier.updateAdvancedSettingsEnabled(advancedSettingsEnabled);
-        final keyboardState = ref.read(keyboardNotifierProvider);
-        final currentPrefsState = ref.read(preferencesNotifierProvider);
+        final keyboardState = ref.read(keyboardProvider);
+        final currentPrefsState = ref.read(preferencesProvider);
 
         if (!advancedSettingsEnabled) {
           if (keyboardState.kanataEnabled) {
@@ -434,7 +434,7 @@ class MethodCallHandler {
 
       case 'updateUseUserLayout':
         final useUserLayout = _safeArgument<bool>(call.arguments, false);
-        final keyboardState = ref.read(keyboardNotifierProvider);
+        final keyboardState = ref.read(keyboardProvider);
 
         if (useUserLayout) {
           // Save the current layout before switching to user layout
@@ -468,7 +468,7 @@ class MethodCallHandler {
 
       case 'updateCustomFontEnabled':
         final customFontEnabled = _safeArgument<bool>(call.arguments, false);
-        final keyboardState = ref.read(keyboardNotifierProvider);
+        final keyboardState = ref.read(keyboardProvider);
 
         if (customFontEnabled) {
           // Save the current font before switching to custom font
@@ -491,7 +491,7 @@ class MethodCallHandler {
 
       case 'updateKanataEnabled':
         final kanataEnabled = _safeArgument<bool>(call.arguments, false);
-        final keyboardState = ref.read(keyboardNotifierProvider);
+        final keyboardState = ref.read(keyboardProvider);
         if (kanataEnabled && !keyboardState.kanataEnabled) {
           // Turning Kanata ON
           if (kDebugMode) {
@@ -522,7 +522,7 @@ class MethodCallHandler {
       case 'updateKeyboardFollowsMouse':
         final keyboardFollowsMouse = _safeArgument<bool>(call.arguments, false);
         prefsNotifier.updateKeyboardFollowsMouse(keyboardFollowsMouse);
-        final currentPrefsState = ref.read(preferencesNotifierProvider);
+        final currentPrefsState = ref.read(preferencesProvider);
         if (keyboardFollowsMouse && currentPrefsState.advancedSettingsEnabled) {
           startMouseTracking(true);
         } else {

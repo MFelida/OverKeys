@@ -19,8 +19,8 @@ class ConfigurationLoader {
   }
 
   Future<void> loadAllConfiguration(WidgetRef ref) async {
-    final prefsState = ref.read(preferencesNotifierProvider);
-    final prefsNotifier = ref.read(preferencesNotifierProvider.notifier);
+    final prefsState = ref.read(preferencesProvider);
+    final prefsNotifier = ref.read(preferencesProvider.notifier);
 
     // Load the full user config first
     final config = await _configService.loadConfig();
@@ -49,21 +49,21 @@ class ConfigurationLoader {
   Future<void> loadCustomShiftMappings(WidgetRef ref) async {
     final mappings = await _configService.getCustomShiftMappings();
     ref
-        .read(keyboardNotifierProvider.notifier)
+        .read(keyboardProvider.notifier)
         .updateCustomShiftMappings(mappings);
   }
 
   Future<void> loadCustomAliases(WidgetRef ref) async {
     final aliases = await _configService.getCustomAliases();
-    ref.read(keyboardNotifierProvider.notifier).updateCustomAliases(aliases);
+    ref.read(keyboardProvider.notifier).updateCustomAliases(aliases);
   }
 
   Future<void> loadUserLayout(WidgetRef ref) async {
-    final prefsState = ref.read(preferencesNotifierProvider);
+    final prefsState = ref.read(preferencesProvider);
     if (!prefsState.useUserLayout) return;
 
-    final keyboardNotifier = ref.read(keyboardNotifierProvider.notifier);
-    final prefsNotifier = ref.read(preferencesNotifierProvider.notifier);
+    final keyboardNotifier = ref.read(keyboardProvider.notifier);
+    final prefsNotifier = ref.read(preferencesProvider.notifier);
     final userLayout = await _configService.getUserLayout();
 
     if (userLayout != null) {
@@ -78,21 +78,21 @@ class ConfigurationLoader {
   }
 
   Future<void> loadUserLayers(WidgetRef ref) async {
-    final prefsState = ref.read(preferencesNotifierProvider);
+    final prefsState = ref.read(preferencesProvider);
     if (!prefsState.useUserLayout) return;
 
-    final prefsNotifier = ref.read(preferencesNotifierProvider.notifier);
+    final prefsNotifier = ref.read(preferencesProvider.notifier);
     final layers = await _configService.getUserLayers();
 
     prefsNotifier.updateUserLayers(layers);
   }
 
   Future<void> loadAltLayout(WidgetRef ref) async {
-    final prefsState = ref.read(preferencesNotifierProvider);
+    final prefsState = ref.read(preferencesProvider);
     if (!prefsState.showAltLayout) return;
 
-    final prefsNotifier = ref.read(preferencesNotifierProvider.notifier);
-    final keyboardNotifier = ref.read(keyboardNotifierProvider.notifier);
+    final prefsNotifier = ref.read(preferencesProvider.notifier);
+    final keyboardNotifier = ref.read(keyboardProvider.notifier);
     final altLayout = await _configService.getAltLayout();
 
     if (altLayout != null) {
@@ -105,12 +105,12 @@ class ConfigurationLoader {
   }
 
   Future<void> loadCustomFont(WidgetRef ref) async {
-    final prefsState = ref.read(preferencesNotifierProvider);
+    final prefsState = ref.read(preferencesProvider);
     if (!prefsState.customFontEnabled || !prefsState.advancedSettingsEnabled) {
       return;
     }
 
-    final keyboardNotifier = ref.read(keyboardNotifierProvider.notifier);
+    final keyboardNotifier = ref.read(keyboardProvider.notifier);
     final customFont = await _configService.getCustomFont();
 
     if (customFont != null) {
@@ -119,9 +119,9 @@ class ConfigurationLoader {
   }
 
   Future<void> useKanata(WidgetRef ref) async {
-    final keyboardNotifier = ref.read(keyboardNotifierProvider.notifier);
-    final keyboardState = ref.read(keyboardNotifierProvider);
-    final prefsState = ref.read(preferencesNotifierProvider);
+    final keyboardNotifier = ref.read(keyboardProvider.notifier);
+    final keyboardState = ref.read(keyboardProvider);
+    final prefsState = ref.read(preferencesProvider);
 
     // Save the current layout as initialLayout so we can restore it when Kanata is disabled
     // This should be the layout that was displayed before Kanata takes control

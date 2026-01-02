@@ -23,17 +23,17 @@ class _AnimationsTabState extends ConsumerState<AnimationsTab> {
   void initState() {
     super.initState();
     // Initialize with current provider values
-    final keyboardState = ref.read(keyboardNotifierProvider);
+    final keyboardState = ref.read(keyboardProvider);
     _localAnimationDuration = keyboardState.animationDuration;
     _localAnimationScale = keyboardState.animationScale;
   }
 
   @override
   Widget build(BuildContext context) {
-    final keyboardState = ref.watch(keyboardNotifierProvider);
+    final keyboardState = ref.watch(keyboardProvider);
 
     // Listen for external provider changes and sync local state
-    ref.listen<KeyboardState>(keyboardNotifierProvider, (previous, next) {
+    ref.listen<KeyboardState>(keyboardProvider, (previous, next) {
       if (previous != null) {
         if (_localAnimationDuration != next.animationDuration) {
           setState(() => _localAnimationDuration = next.animationDuration);
@@ -52,7 +52,7 @@ class _AnimationsTabState extends ConsumerState<AnimationsTab> {
           value: keyboardState.animationEnabled,
           onChanged: (value) {
             ref
-                .read(keyboardNotifierProvider.notifier)
+                .read(keyboardProvider.notifier)
                 .updateAnimationEnabled(value);
             widget.onUpdateMainWindow('updateAnimationEnabled', value);
           },
@@ -63,7 +63,7 @@ class _AnimationsTabState extends ConsumerState<AnimationsTab> {
           options: ['Depress', 'Raise', 'Grow', 'Shrink'],
           onChanged: (value) {
             ref
-                .read(keyboardNotifierProvider.notifier)
+                .read(keyboardProvider.notifier)
                 .updateAnimationStyle(value!);
             widget.onUpdateMainWindow('updateAnimationStyle', value);
           },
@@ -79,7 +79,7 @@ class _AnimationsTabState extends ConsumerState<AnimationsTab> {
           },
           onChangeEnd: (value) {
             ref
-                .read(keyboardNotifierProvider.notifier)
+                .read(keyboardProvider.notifier)
                 .updateAnimationDuration(value);
             widget.onUpdateMainWindow('updateAnimationDuration', value);
           },
@@ -95,7 +95,7 @@ class _AnimationsTabState extends ConsumerState<AnimationsTab> {
           },
           onChangeEnd: (value) {
             ref
-                .read(keyboardNotifierProvider.notifier)
+                .read(keyboardProvider.notifier)
                 .updateAnimationScale(value);
             widget.onUpdateMainWindow('updateAnimationScale', value);
           },

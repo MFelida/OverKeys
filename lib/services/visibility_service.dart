@@ -8,8 +8,8 @@ class VisibilityService {
   /// Checks if the current keyboard layout is the default layer
   /// Returns true if we're on default layer and should hide the window
   bool isOnDefaultLayer(WidgetRef ref) {
-    final keyboardState = ref.read(keyboardNotifierProvider);
-    final prefsState = ref.read(preferencesNotifierProvider);
+    final keyboardState = ref.read(keyboardProvider);
+    final prefsState = ref.read(preferencesProvider);
 
     // If hideOnDefaultLayer is disabled, always allow showing
     if (!prefsState.hideOnDefaultLayer) return false;
@@ -37,8 +37,8 @@ class VisibilityService {
 
   /// Fades in the keyboard overlay if conditions are met
   void fadeIn(WidgetRef ref, Function resetAutoHideTimer) {
-    final appState = ref.read(appStateNotifierProvider);
-    final appNotifier = ref.read(appStateNotifierProvider.notifier);
+    final appState = ref.read(appStateProvider);
+    final appNotifier = ref.read(appStateProvider.notifier);
 
     if (appState.forceHide || appState.isWindowVisible) return;
 
@@ -53,8 +53,8 @@ class VisibilityService {
 
   /// Fades out the keyboard overlay
   void fadeOut(WidgetRef ref) {
-    final appState = ref.read(appStateNotifierProvider);
-    final appNotifier = ref.read(appStateNotifierProvider.notifier);
+    final appState = ref.read(appStateProvider);
+    final appNotifier = ref.read(appStateProvider.notifier);
 
     if (!appState.isWindowVisible) return;
     appNotifier.updateIsWindowVisible(false);

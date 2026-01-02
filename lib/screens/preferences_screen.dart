@@ -99,18 +99,18 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
     await widget.windowController.setWindowMethodHandler((call) async {
       if (call.method == 'updateOpacityFromMainWindow' && mounted) {
         final opacity = call.arguments as double;
-        ref.read(preferencesNotifierProvider.notifier).updateOpacity(opacity);
+        ref.read(preferencesProvider.notifier).updateOpacity(opacity);
         await _stateService
-            .savePreferencesState(ref.read(preferencesNotifierProvider));
+            .savePreferencesState(ref.read(preferencesProvider));
       }
 
       if (call.method == 'updateAutoHideFromMainWindow' && mounted) {
         final autoHide = call.arguments as bool;
         ref
-            .read(preferencesNotifierProvider.notifier)
+            .read(preferencesProvider.notifier)
             .updateAutoHideEnabled(autoHide);
         await _stateService
-            .savePreferencesState(ref.read(preferencesNotifierProvider));
+            .savePreferencesState(ref.read(preferencesProvider));
       }
 
       if (call.method == 'requestFocus') {
@@ -126,9 +126,9 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
 
   Future<void> _saveState() async {
     await _stateService.saveAllStates(
-      keyboard: ref.read(keyboardNotifierProvider),
-      preferences: ref.read(preferencesNotifierProvider),
-      appState: ref.read(appStateNotifierProvider),
+      keyboard: ref.read(keyboardProvider),
+      preferences: ref.read(preferencesProvider),
+      appState: ref.read(appStateProvider),
     );
   }
 
@@ -163,17 +163,17 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
     final FocusNode keyboardFocusNode = FocusNode();
 
     // Listen to provider changes and auto-save (debounced)
-    ref.listen<KeyboardState>(keyboardNotifierProvider, (previous, next) {
+    ref.listen<KeyboardState>(keyboardProvider, (previous, next) {
       if (previous != null && previous != next) {
         _debouncedSave();
       }
     });
-    ref.listen<PreferencesState>(preferencesNotifierProvider, (previous, next) {
+    ref.listen<PreferencesState>(preferencesProvider, (previous, next) {
       if (previous != null && previous != next) {
         _debouncedSave();
       }
     });
-    ref.listen<AppState>(appStateNotifierProvider, (previous, next) {
+    ref.listen<AppState>(appStateProvider, (previous, next) {
       if (previous != null && previous != next) {
         _debouncedSave();
       }

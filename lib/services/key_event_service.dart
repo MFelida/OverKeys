@@ -57,11 +57,11 @@ class KeyEventService {
     try {
       if (message is! List) return;
 
-      final keyboardNotifier = ref.read(keyboardNotifierProvider.notifier);
-      final appNotifier = ref.read(appStateNotifierProvider.notifier);
-      final keyboardState = ref.read(keyboardNotifierProvider);
-      final appState = ref.read(appStateNotifierProvider);
-      final prefsState = ref.read(preferencesNotifierProvider);
+      final keyboardNotifier = ref.read(keyboardProvider.notifier);
+      final appNotifier = ref.read(appStateProvider.notifier);
+      final keyboardState = ref.read(keyboardProvider);
+      final appState = ref.read(appStateProvider);
+      final prefsState = ref.read(preferencesProvider);
 
       // Handle session unlock
       if (message[0] is String) {
@@ -95,7 +95,7 @@ class KeyEventService {
       }
 
       // Handle custom aliases
-      final updatedKeyboardState = ref.read(keyboardNotifierProvider);
+      final updatedKeyboardState = ref.read(keyboardProvider);
       final customAliases = updatedKeyboardState.customAliases;
 
       if (customAliases != null) {
@@ -153,9 +153,9 @@ class KeyEventService {
       }
 
       // Re-read keyboard state as it might have changed during layer switching
-      final currentKeyboardState = ref.read(keyboardNotifierProvider);
+      final currentKeyboardState = ref.read(keyboardProvider);
       // Re-read app state as it might have changed during layer switching (e.g. visibility)
-      final currentAppState = ref.read(appStateNotifierProvider);
+      final currentAppState = ref.read(appStateProvider);
 
       // Check if we're on the default layer
       final isOnDefaultLayer = _isOnDefaultLayer(
@@ -229,7 +229,7 @@ class KeyEventService {
       }
 
       updateAutoHideBasedOnLayer(
-          ref.read(keyboardNotifierProvider).layout.name ==
+          ref.read(keyboardProvider).layout.name ==
               prefsState.defaultUserLayout?.name);
     }
   }
@@ -244,7 +244,7 @@ class KeyEventService {
     void Function() cancelAutoHideTimer,
   ) {
     // Read the current keyboard state fresh to avoid stale data
-    final currentLayout = ref.read(keyboardNotifierProvider).layout;
+    final currentLayout = ref.read(keyboardProvider).layout;
 
     // Check if we're currently NOT on this toggle layer
     if (currentLayout.name != layout.name) {
@@ -272,10 +272,10 @@ class KeyEventService {
     }
 
     if (prefsState.hideOnDefaultLayer) {
-      final currentLayout = ref.read(keyboardNotifierProvider).layout;
+      final currentLayout = ref.read(keyboardProvider).layout;
       final isNowOnDefault = prefsState.defaultUserLayout != null &&
           currentLayout.name == prefsState.defaultUserLayout!.name;
-      final appState = ref.read(appStateNotifierProvider);
+      final appState = ref.read(appStateProvider);
 
       if (isNowOnDefault && appState.isWindowVisible) {
         appNotifier.updateIsWindowVisible(false);
@@ -299,7 +299,7 @@ class KeyEventService {
   ) {
     if (isPressed && !_activeTriggers.contains(key)) {
       // Store the current layer before switching to the held layer
-      final currentLayout = ref.read(keyboardNotifierProvider).layout;
+      final currentLayout = ref.read(keyboardProvider).layout;
       _previousLayerStack.add(currentLayout);
 
       if (kDebugMode) {
@@ -312,7 +312,7 @@ class KeyEventService {
         fadeIn();
       }
     } else if (!isPressed && _activeTriggers.contains(key)) {
-      final currentLayout = ref.read(keyboardNotifierProvider).layout;
+      final currentLayout = ref.read(keyboardProvider).layout;
 
       // If we are still on the held layer, revert normally
       if (currentLayout.name == layout.name) {
@@ -350,9 +350,9 @@ class KeyEventService {
 
       if (prefsState.hideOnDefaultLayer &&
           prefsState.defaultUserLayout != null) {
-        final appState = ref.read(appStateNotifierProvider);
+        final appState = ref.read(appStateProvider);
         if (appState.isWindowVisible) {
-          final currentLayout = ref.read(keyboardNotifierProvider).layout;
+          final currentLayout = ref.read(keyboardProvider).layout;
           final isNowOnDefault =
               currentLayout.name == prefsState.defaultUserLayout!.name;
 

@@ -17,7 +17,7 @@ class AdvancedTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final prefsState = ref.watch(preferencesNotifierProvider);
+    final prefsState = ref.watch(preferencesProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -27,7 +27,7 @@ class AdvancedTab extends ConsumerWidget {
           value: prefsState.advancedSettingsEnabled,
           onChanged: (value) {
             ref
-                .read(preferencesNotifierProvider.notifier)
+                .read(preferencesProvider.notifier)
                 .updateAdvancedSettingsEnabled(value);
             onUpdateMainWindow('updateAdvancedSettingsEnabled', value);
           },
@@ -45,12 +45,12 @@ class AdvancedTab extends ConsumerWidget {
                 onChanged: (value) {
                   if (value && prefsState.kanataEnabled) {
                     ref
-                        .read(preferencesNotifierProvider.notifier)
+                        .read(preferencesProvider.notifier)
                         .updateKanataEnabled(false);
                     onUpdateMainWindow('updateKanataEnabled', false);
                   }
                   ref
-                      .read(preferencesNotifierProvider.notifier)
+                      .read(preferencesProvider.notifier)
                       .updateUseUserLayout(value);
                   onUpdateMainWindow('updateUseUserLayout', value);
                 },
@@ -62,7 +62,7 @@ class AdvancedTab extends ConsumerWidget {
                 value: prefsState.showAltLayout,
                 onChanged: (value) {
                   ref
-                      .read(preferencesNotifierProvider.notifier)
+                      .read(preferencesProvider.notifier)
                       .updateShowAltLayout(value);
                   onUpdateMainWindow('updateShowAltLayout', value);
                 },
@@ -74,7 +74,7 @@ class AdvancedTab extends ConsumerWidget {
                     'Use a custom font defined in the config file. Make sure that the font is installed on your system.',
                 onChanged: (value) {
                   ref
-                      .read(preferencesNotifierProvider.notifier)
+                      .read(preferencesProvider.notifier)
                       .updateCustomFontEnabled(value);
                   onUpdateMainWindow('updateCustomFontEnabled', value);
                 },
@@ -86,7 +86,7 @@ class AdvancedTab extends ConsumerWidget {
                 value: prefsState.use6ColLayout,
                 onChanged: (value) {
                   ref
-                      .read(preferencesNotifierProvider.notifier)
+                      .read(preferencesProvider.notifier)
                       .updateUse6ColLayout(value);
                   onUpdateMainWindow('updateUse6ColLayout', value);
                 },
@@ -99,12 +99,12 @@ class AdvancedTab extends ConsumerWidget {
                 onChanged: (value) {
                   if (value && prefsState.useUserLayout) {
                     ref
-                        .read(preferencesNotifierProvider.notifier)
+                        .read(preferencesProvider.notifier)
                         .updateUseUserLayout(false);
                     onUpdateMainWindow('updateUseUserLayout', false);
                   }
                   ref
-                      .read(preferencesNotifierProvider.notifier)
+                      .read(preferencesProvider.notifier)
                       .updateKanataEnabled(value);
                   onUpdateMainWindow('updateKanataEnabled', value);
                 },
@@ -116,7 +116,7 @@ class AdvancedTab extends ConsumerWidget {
                     'EXPERIMENTAL: Keyboard will follow your mouse cursor across monitors. Note: This will override manual position adjustments. Also causes focus issues',
                 onChanged: (value) {
                   ref
-                      .read(preferencesNotifierProvider.notifier)
+                      .read(preferencesProvider.notifier)
                       .updateKeyboardFollowsMouse(value);
                   onUpdateMainWindow('updateKeyboardFollowsMouse', value);
                 },
@@ -128,7 +128,7 @@ class AdvancedTab extends ConsumerWidget {
                     'Automatically hide OverKeys when on the default/base layer. Only show when switching to other layers.',
                 onChanged: (value) {
                   ref
-                      .read(preferencesNotifierProvider.notifier)
+                      .read(preferencesProvider.notifier)
                       .updateHideOnDefaultLayer(value);
                   onUpdateMainWindow('updateHideOnDefaultLayer', value);
                 },

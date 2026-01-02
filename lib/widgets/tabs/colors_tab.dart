@@ -13,7 +13,7 @@ class ColorsTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final keyboardState = ref.watch(keyboardNotifierProvider);
+    final keyboardState = ref.watch(keyboardProvider);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -28,7 +28,7 @@ class ColorsTab extends ConsumerWidget {
                 currentColor: keyboardState.keyColorPressed,
                 onColorChanged: (value) {
                   ref
-                      .read(keyboardNotifierProvider.notifier)
+                      .read(keyboardProvider.notifier)
                       .updateKeyColorPressed(value);
                   onUpdateMainWindow('updateKeyColorPressed', value);
                 },
@@ -38,7 +38,7 @@ class ColorsTab extends ConsumerWidget {
                 currentColor: keyboardState.markerColor,
                 onColorChanged: (value) {
                   ref
-                      .read(keyboardNotifierProvider.notifier)
+                      .read(keyboardProvider.notifier)
                       .updateMarkerColor(value);
                   onUpdateMainWindow('updateMarkerColor', value);
                 },
@@ -48,7 +48,7 @@ class ColorsTab extends ConsumerWidget {
                 currentColor: keyboardState.keyTextColor,
                 onColorChanged: (value) {
                   ref
-                      .read(keyboardNotifierProvider.notifier)
+                      .read(keyboardProvider.notifier)
                       .updateKeyTextColor(value);
                   onUpdateMainWindow('updateKeyTextColor', value);
                 },
@@ -58,7 +58,7 @@ class ColorsTab extends ConsumerWidget {
                 currentColor: keyboardState.keyBorderColorPressed,
                 onColorChanged: (value) {
                   ref
-                      .read(keyboardNotifierProvider.notifier)
+                      .read(keyboardProvider.notifier)
                       .updateKeyBorderColorPressed(value);
                   onUpdateMainWindow('updateKeyBorderColorPressed', value);
                 },
@@ -76,7 +76,7 @@ class ColorsTab extends ConsumerWidget {
                 currentColor: keyboardState.keyColorNotPressed,
                 onColorChanged: (value) {
                   ref
-                      .read(keyboardNotifierProvider.notifier)
+                      .read(keyboardProvider.notifier)
                       .updateKeyColorNotPressed(value);
                   onUpdateMainWindow('updateKeyColorNotPressed', value);
                 },
@@ -86,7 +86,7 @@ class ColorsTab extends ConsumerWidget {
                 currentColor: keyboardState.markerColorNotPressed,
                 onColorChanged: (value) {
                   ref
-                      .read(keyboardNotifierProvider.notifier)
+                      .read(keyboardProvider.notifier)
                       .updateMarkerColorNotPressed(value);
                   onUpdateMainWindow('updateMarkerColorNotPressed', value);
                 },
@@ -96,7 +96,7 @@ class ColorsTab extends ConsumerWidget {
                 currentColor: keyboardState.keyTextColorNotPressed,
                 onColorChanged: (value) {
                   ref
-                      .read(keyboardNotifierProvider.notifier)
+                      .read(keyboardProvider.notifier)
                       .updateKeyTextColorNotPressed(value);
                   onUpdateMainWindow('updateKeyTextColorNotPressed', value);
                 },
@@ -106,7 +106,7 @@ class ColorsTab extends ConsumerWidget {
                 currentColor: keyboardState.keyBorderColorNotPressed,
                 onColorChanged: (value) {
                   ref
-                      .read(keyboardNotifierProvider.notifier)
+                      .read(keyboardProvider.notifier)
                       .updateKeyBorderColorNotPressed(value);
                   onUpdateMainWindow('updateKeyBorderColorNotPressed', value);
                 },

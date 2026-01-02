@@ -134,19 +134,19 @@ class StateService {
 
     if (states['keyboard'] != null) {
       ref
-          .read(keyboardNotifierProvider.notifier)
+          .read(keyboardProvider.notifier)
           .updateKeyboardState(states['keyboard']!);
     }
 
     if (states['preferences'] != null) {
       ref
-          .read(preferencesNotifierProvider.notifier)
+          .read(preferencesProvider.notifier)
           .updatePreferencesState(states['preferences']!);
     }
 
     if (states['appState'] != null) {
       ref
-          .read(appStateNotifierProvider.notifier)
+          .read(appStateProvider.notifier)
           .updateAppState(states['appState']!);
     }
   }

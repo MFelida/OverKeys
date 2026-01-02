@@ -14,42 +14,42 @@ class LearnTab extends ConsumerWidget {
 
   void _resetToDefaultColors(WidgetRef ref) {
     ref
-        .read(keyboardNotifierProvider.notifier)
+        .read(keyboardProvider.notifier)
         .updatePinkyLeftColor(const Color(0xFFED3345));
     onUpdateMainWindow('updatePinkyLeftColor', const Color(0xFFED3345));
     ref
-        .read(keyboardNotifierProvider.notifier)
+        .read(keyboardProvider.notifier)
         .updateRingLeftColor(const Color(0xFFFAA71D));
     onUpdateMainWindow('updateRingLeftColor', const Color(0xFFFAA71D));
     ref
-        .read(keyboardNotifierProvider.notifier)
+        .read(keyboardProvider.notifier)
         .updateMiddleLeftColor(const Color(0xFF70C27B));
     onUpdateMainWindow('updateMiddleLeftColor', const Color(0xFF70C27B));
     ref
-        .read(keyboardNotifierProvider.notifier)
+        .read(keyboardProvider.notifier)
         .updateIndexLeftColor(const Color(0xFF00AFEB));
     onUpdateMainWindow('updateIndexLeftColor', const Color(0xFF00AFEB));
     ref
-        .read(keyboardNotifierProvider.notifier)
+        .read(keyboardProvider.notifier)
         .updateIndexRightColor(const Color(0xFF5985BF));
     onUpdateMainWindow('updateIndexRightColor', const Color(0xFF5985BF));
     ref
-        .read(keyboardNotifierProvider.notifier)
+        .read(keyboardProvider.notifier)
         .updateMiddleRightColor(const Color(0xFF97D6F5));
     onUpdateMainWindow('updateMiddleRightColor', const Color(0xFF97D6F5));
     ref
-        .read(keyboardNotifierProvider.notifier)
+        .read(keyboardProvider.notifier)
         .updateRingRightColor(const Color(0xFFFFE8A0));
     onUpdateMainWindow('updateRingRightColor', const Color(0xFFFFE8A0));
     ref
-        .read(keyboardNotifierProvider.notifier)
+        .read(keyboardProvider.notifier)
         .updatePinkyRightColor(const Color(0xFFBDE0BF));
     onUpdateMainWindow('updatePinkyRightColor', const Color(0xFFBDE0BF));
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final keyboardState = ref.watch(keyboardNotifierProvider);
+    final keyboardState = ref.watch(keyboardProvider);
 
     return Center(
       child: Padding(
@@ -64,7 +64,7 @@ class LearnTab extends ConsumerWidget {
               value: keyboardState.learningModeEnabled,
               onChanged: (value) {
                 ref
-                    .read(keyboardNotifierProvider.notifier)
+                    .read(keyboardProvider.notifier)
                     .updateLearningModeEnabled(value);
                 onUpdateMainWindow('updateLearningModeEnabled', value);
               },
@@ -81,7 +81,7 @@ class LearnTab extends ConsumerWidget {
                           currentColor: keyboardState.pinkyLeftColor,
                           onColorChanged: (value) {
                             ref
-                                .read(keyboardNotifierProvider.notifier)
+                                .read(keyboardProvider.notifier)
                                 .updatePinkyLeftColor(value);
                             onUpdateMainWindow('updatePinkyLeftColor', value);
                           },
@@ -91,7 +91,7 @@ class LearnTab extends ConsumerWidget {
                           currentColor: keyboardState.ringLeftColor,
                           onColorChanged: (value) {
                             ref
-                                .read(keyboardNotifierProvider.notifier)
+                                .read(keyboardProvider.notifier)
                                 .updateRingLeftColor(value);
                             onUpdateMainWindow('updateRingLeftColor', value);
                           },
@@ -101,7 +101,7 @@ class LearnTab extends ConsumerWidget {
                           currentColor: keyboardState.middleLeftColor,
                           onColorChanged: (value) {
                             ref
-                                .read(keyboardNotifierProvider.notifier)
+                                .read(keyboardProvider.notifier)
                                 .updateMiddleLeftColor(value);
                             onUpdateMainWindow('updateMiddleLeftColor', value);
                           },
@@ -111,7 +111,7 @@ class LearnTab extends ConsumerWidget {
                           currentColor: keyboardState.indexLeftColor,
                           onColorChanged: (value) {
                             ref
-                                .read(keyboardNotifierProvider.notifier)
+                                .read(keyboardProvider.notifier)
                                 .updateIndexLeftColor(value);
                             onUpdateMainWindow('updateIndexLeftColor', value);
                           },
@@ -129,7 +129,7 @@ class LearnTab extends ConsumerWidget {
                           currentColor: keyboardState.pinkyRightColor,
                           onColorChanged: (value) {
                             ref
-                                .read(keyboardNotifierProvider.notifier)
+                                .read(keyboardProvider.notifier)
                                 .updatePinkyRightColor(value);
                             onUpdateMainWindow('updatePinkyRightColor', value);
                           },
@@ -139,7 +139,7 @@ class LearnTab extends ConsumerWidget {
                           currentColor: keyboardState.ringRightColor,
                           onColorChanged: (value) {
                             ref
-                                .read(keyboardNotifierProvider.notifier)
+                                .read(keyboardProvider.notifier)
                                 .updateRingRightColor(value);
                             onUpdateMainWindow('updateRingRightColor', value);
                           },
@@ -149,7 +149,7 @@ class LearnTab extends ConsumerWidget {
                           currentColor: keyboardState.middleRightColor,
                           onColorChanged: (value) {
                             ref
-                                .read(keyboardNotifierProvider.notifier)
+                                .read(keyboardProvider.notifier)
                                 .updateMiddleRightColor(value);
                             onUpdateMainWindow('updateMiddleRightColor', value);
                           },
@@ -159,7 +159,7 @@ class LearnTab extends ConsumerWidget {
                           currentColor: keyboardState.indexRightColor,
                           onColorChanged: (value) {
                             ref
-                                .read(keyboardNotifierProvider.notifier)
+                                .read(keyboardProvider.notifier)
                                 .updateIndexRightColor(value);
                             onUpdateMainWindow('updateIndexRightColor', value);
                           },

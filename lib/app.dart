@@ -73,8 +73,8 @@ class _MainAppState extends ConsumerState<MainApp>
     _setupMethodHandler();
     _setupKanataLayerChangeHandler();
     _loadConfiguration();
-    final prefsState = ref.read(preferencesNotifierProvider);
-    final keyboardState = ref.read(keyboardNotifierProvider);
+    final prefsState = ref.read(preferencesProvider);
+    final keyboardState = ref.read(keyboardProvider);
     if (keyboardState.showTopRow) {
       _adjustWindowSize();
     }
@@ -87,10 +87,10 @@ class _MainAppState extends ConsumerState<MainApp>
 
   void _setupKanataLayerChangeHandler() {
     _kanataService.onLayerChange = (newLayout, isDefaultUserLayout) {
-      final keyboardNotifier = ref.read(keyboardNotifierProvider.notifier);
-      final appNotifier = ref.read(appStateNotifierProvider.notifier);
-      final prefsState = ref.read(preferencesNotifierProvider);
-      final appState = ref.read(appStateNotifierProvider);
+      final keyboardNotifier = ref.read(keyboardProvider.notifier);
+      final appNotifier = ref.read(appStateProvider.notifier);
+      final prefsState = ref.read(preferencesProvider);
+      final appState = ref.read(appStateProvider);
 
       keyboardNotifier.updateLayout(newLayout);
       _updateAutoHideBasedOnLayer(isDefaultUserLayout);
@@ -107,9 +107,9 @@ class _MainAppState extends ConsumerState<MainApp>
 
     // Set up disconnect callback to restore layout when Kanata connection is lost
     _kanataService.onDisconnect = () {
-      final keyboardNotifier = ref.read(keyboardNotifierProvider.notifier);
-      final keyboardState = ref.read(keyboardNotifierProvider);
-      final prefsState = ref.read(preferencesNotifierProvider);
+      final keyboardNotifier = ref.read(keyboardProvider.notifier);
+      final keyboardState = ref.read(keyboardProvider);
+      final prefsState = ref.read(preferencesProvider);
 
       // Only restore layout if Kanata is still enabled in preferences
       // (if user manually disabled it, the layout restore is handled elsewhere)
@@ -121,7 +121,7 @@ class _MainAppState extends ConsumerState<MainApp>
   }
 
   void _updateAutoHideBasedOnLayer(bool isDefaultUserLayout) {
-    final prefsState = ref.read(preferencesNotifierProvider);
+    final prefsState = ref.read(preferencesProvider);
     if (!isDefaultUserLayout && prefsState.autoHideEnabled) {
       _autoHideManager.autoHideBeforeMove = true;
     } else if (isDefaultUserLayout && _autoHideManager.autoHideBeforeMove) {
@@ -157,9 +157,9 @@ class _MainAppState extends ConsumerState<MainApp>
 
   Future<void> _saveAllPreferences() async {
     await _stateService.saveAllStates(
-      keyboard: ref.read(keyboardNotifierProvider),
-      preferences: ref.read(preferencesNotifierProvider),
-      appState: ref.read(appStateNotifierProvider),
+      keyboard: ref.read(keyboardProvider),
+      preferences: ref.read(preferencesProvider),
+      appState: ref.read(appStateProvider),
     );
   }
 
@@ -217,8 +217,8 @@ class _MainAppState extends ConsumerState<MainApp>
   }
 
   void _toggleAutoHide(bool enable) {
-    final prefsNotifier = ref.read(preferencesNotifierProvider.notifier);
-    final appState = ref.read(appStateNotifierProvider);
+    final prefsNotifier = ref.read(preferencesProvider.notifier);
+    final appState = ref.read(appStateProvider);
 
     prefsNotifier.updateAutoHideEnabled(enable);
     if (enable) {
@@ -247,9 +247,9 @@ class _MainAppState extends ConsumerState<MainApp>
   }
 
   void _adjustOpacity(bool increase) {
-    final appState = ref.read(appStateNotifierProvider);
-    final prefsState = ref.read(preferencesNotifierProvider);
-    final prefsNotifier = ref.read(preferencesNotifierProvider.notifier);
+    final appState = ref.read(appStateProvider);
+    final prefsState = ref.read(preferencesProvider);
+    final prefsNotifier = ref.read(preferencesProvider.notifier);
     double lastOpacity = prefsState.opacity;
 
     if (appState.forceHide) return;
@@ -287,14 +287,14 @@ class _MainAppState extends ConsumerState<MainApp>
   }
 
   String _formatHotkey(HotKey? hotkey, bool enabled) {
-    final appState = ref.read(appStateNotifierProvider);
+    final appState = ref.read(appStateProvider);
     if (hotkey == null || !appState.hotKeysEnabled || !enabled) return '';
     return _hotKeyService.formatHotkey(hotkey, true);
   }
 
   Future<void> _setupTray() async {
-    final appState = ref.read(appStateNotifierProvider);
-    final prefsState = ref.read(preferencesNotifierProvider);
+    final appState = ref.read(appStateProvider);
+    final prefsState = ref.read(preferencesProvider);
 
     await _trayService.setupTray(
       toggleMoveHotKeyLabel: _formatHotkey(
@@ -308,7 +308,7 @@ class _MainAppState extends ConsumerState<MainApp>
       ignoreMouseEvents: appState.ignoreMouseEvents,
       autoHideEnabled: prefsState.autoHideEnabled,
       onToggleMoveClicked: () {
-        final appNotifier = ref.read(appStateNotifierProvider.notifier);
+        final appNotifier = ref.read(appStateProvider.notifier);
         appNotifier.updateIgnoreMouseEvents(!appState.ignoreMouseEvents);
         windowManager.setIgnoreMouseEvents(!appState.ignoreMouseEvents);
         if (!appState.ignoreMouseEvents) {
@@ -337,7 +337,7 @@ class _MainAppState extends ConsumerState<MainApp>
   }
 
   Future<void> _setupHotKeys() async {
-    final appState = ref.read(appStateNotifierProvider);
+    final appState = ref.read(appStateProvider);
     await _hotKeyService.setupHotKeys(
       autoHideHotKey: appState.autoHideHotKey,
       enableAutoHideHotKey: appState.enableAutoHideHotKey,
@@ -353,13 +353,13 @@ class _MainAppState extends ConsumerState<MainApp>
       enableDecreaseOpacityHotKey: appState.enableDecreaseOpacityHotKey,
       hotKeysEnabled: appState.hotKeysEnabled,
       onAutoHideTriggered: () {
-        final prefsState = ref.read(preferencesNotifierProvider);
+        final prefsState = ref.read(preferencesProvider);
         _toggleAutoHide(!prefsState.autoHideEnabled);
       },
       onVisibilityTriggered: () => onTrayIconMouseDown(),
       onToggleMoveTriggered: () {
-        final currentAppState = ref.read(appStateNotifierProvider);
-        final appNotifier = ref.read(appStateNotifierProvider.notifier);
+        final currentAppState = ref.read(appStateProvider);
+        final appNotifier = ref.read(appStateProvider.notifier);
         appNotifier.updateIgnoreMouseEvents(!currentAppState.ignoreMouseEvents);
         windowManager.setIgnoreMouseEvents(!currentAppState.ignoreMouseEvents);
         if (!currentAppState.ignoreMouseEvents) {
@@ -406,8 +406,8 @@ class _MainAppState extends ConsumerState<MainApp>
 
   @override
   void onTrayIconMouseDown() {
-    final appNotifier = ref.read(appStateNotifierProvider.notifier);
-    final appState = ref.read(appStateNotifierProvider);
+    final appNotifier = ref.read(appStateProvider.notifier);
+    final appState = ref.read(appStateProvider);
 
     appNotifier.updateForceHide(!appState.forceHide);
     _autoHideManager.showOverlay(
@@ -477,7 +477,7 @@ class _MainAppState extends ConsumerState<MainApp>
       if (call.method == 'updateShowTopRow') {
         final showTopRow = call.arguments as bool;
         ref
-            .read(keyboardNotifierProvider.notifier)
+            .read(keyboardProvider.notifier)
             .updateShowTopRow(showTopRow);
         _adjustWindowSize();
         return null;
@@ -516,9 +516,9 @@ class _MainAppState extends ConsumerState<MainApp>
 
   @override
   Widget build(BuildContext context) {
-    final keyboardState = ref.watch(keyboardNotifierProvider);
-    final prefsState = ref.watch(preferencesNotifierProvider);
-    final appState = ref.watch(appStateNotifierProvider);
+    final keyboardState = ref.watch(keyboardProvider);
+    final prefsState = ref.watch(preferencesProvider);
+    final appState = ref.watch(appStateProvider);
 
     return MaterialApp(
       title: 'OverKeys',

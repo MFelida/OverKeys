@@ -25,18 +25,18 @@ class _GeneralTabState extends ConsumerState<GeneralTab> {
   void initState() {
     super.initState();
     // Initialize with current provider values
-    final prefsState = ref.read(preferencesNotifierProvider);
+    final prefsState = ref.read(preferencesProvider);
     _localAutoHideDuration = prefsState.autoHideDuration;
     _localOpacity = prefsState.opacity.clamp(0.1, 1.0);
   }
 
   @override
   Widget build(BuildContext context) {
-    final prefsState = ref.watch(preferencesNotifierProvider);
-    final keyboardState = ref.watch(keyboardNotifierProvider);
+    final prefsState = ref.watch(preferencesProvider);
+    final keyboardState = ref.watch(keyboardProvider);
 
     // Listen for external provider changes and sync local state
-    ref.listen<PreferencesState>(preferencesNotifierProvider, (previous, next) {
+    ref.listen<PreferencesState>(preferencesProvider, (previous, next) {
       if (previous != null) {
         if (_localAutoHideDuration != next.autoHideDuration) {
           setState(() => _localAutoHideDuration = next.autoHideDuration);
@@ -55,7 +55,7 @@ class _GeneralTabState extends ConsumerState<GeneralTab> {
           value: prefsState.launchAtStartup,
           onChanged: (value) {
             ref
-                .read(preferencesNotifierProvider.notifier)
+                .read(preferencesProvider.notifier)
                 .updateLaunchAtStartup(value);
             widget.onUpdateMainWindow('updateLaunchAtStartup', value);
           },
@@ -65,7 +65,7 @@ class _GeneralTabState extends ConsumerState<GeneralTab> {
           value: prefsState.autoHideEnabled,
           onChanged: (value) {
             ref
-                .read(preferencesNotifierProvider.notifier)
+                .read(preferencesProvider.notifier)
                 .updateAutoHideEnabled(value);
             widget.onUpdateMainWindow('updateAutoHideEnabled', value);
           },
@@ -77,7 +77,7 @@ class _GeneralTabState extends ConsumerState<GeneralTab> {
               'Updates the displayed keys to their Shift+Key symbols when Shift is pressed',
           onChanged: (value) {
             ref
-                .read(preferencesNotifierProvider.notifier)
+                .read(preferencesProvider.notifier)
                 .updateReactiveShiftEnabled(value);
             widget.onUpdateMainWindow('updateReactiveShiftEnabled', value);
           },
@@ -89,7 +89,7 @@ class _GeneralTabState extends ConsumerState<GeneralTab> {
             value: prefsState.hideAtStartup,
             onChanged: (value) {
               ref
-                  .read(preferencesNotifierProvider.notifier)
+                  .read(preferencesProvider.notifier)
                   .updateHideAtStartup(value);
               widget.onUpdateMainWindow('updateHideAtStartup', value);
             },
@@ -107,7 +107,7 @@ class _GeneralTabState extends ConsumerState<GeneralTab> {
             onChangeEnd: (value) {
               double roundedValue = (value * 2).round() / 2;
               ref
-                  .read(preferencesNotifierProvider.notifier)
+                  .read(preferencesProvider.notifier)
                   .updateAutoHideDuration(roundedValue);
               widget.onUpdateMainWindow('updateAutoHideDuration', roundedValue);
             },
@@ -128,7 +128,7 @@ class _GeneralTabState extends ConsumerState<GeneralTab> {
             setState(() => _localOpacity = value);
           },
           onChangeEnd: (value) {
-            ref.read(preferencesNotifierProvider.notifier).updateOpacity(value);
+            ref.read(preferencesProvider.notifier).updateOpacity(value);
             widget.onUpdateMainWindow('updateOpacity', value);
           },
         ),
@@ -141,7 +141,7 @@ class _GeneralTabState extends ConsumerState<GeneralTab> {
               (l) => l.name == value!,
               orElse: () => availableLayouts.first,
             );
-            ref.read(keyboardNotifierProvider.notifier).updateLayout(layout);
+            ref.read(keyboardProvider.notifier).updateLayout(layout);
             widget.onUpdateMainWindow('updateLayout', value!);
           },
         ),

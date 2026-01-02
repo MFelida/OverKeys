@@ -24,17 +24,17 @@ class _TextTabState extends ConsumerState<TextTab> {
   void initState() {
     super.initState();
     // Initialize with current provider values
-    final keyboardState = ref.read(keyboardNotifierProvider);
+    final keyboardState = ref.read(keyboardProvider);
     _localKeyFontSize = keyboardState.keyFontSize;
     _localSpaceFontSize = keyboardState.spaceFontSize;
   }
 
   @override
   Widget build(BuildContext context) {
-    final keyboardState = ref.watch(keyboardNotifierProvider);
+    final keyboardState = ref.watch(keyboardProvider);
 
     // Listen for external provider changes and sync local state
-    ref.listen<KeyboardState>(keyboardNotifierProvider, (previous, next) {
+    ref.listen<KeyboardState>(keyboardProvider, (previous, next) {
       if (previous != null) {
         if (_localKeyFontSize != next.keyFontSize) {
           setState(() => _localKeyFontSize = next.keyFontSize);
@@ -54,7 +54,7 @@ class _TextTabState extends ConsumerState<TextTab> {
             options: availableFontFamilies,
             onChanged: (value) {
               ref
-                  .read(keyboardNotifierProvider.notifier)
+                  .read(keyboardProvider.notifier)
                   .updateFontFamily(value!);
               widget.onUpdateMainWindow('updateFontFamily', value);
             },
@@ -125,7 +125,7 @@ class _TextTabState extends ConsumerState<TextTab> {
                 weight = FontWeight.w500;
             }
             ref
-                .read(keyboardNotifierProvider.notifier)
+                .read(keyboardProvider.notifier)
                 .updateFontWeight(weight);
             widget.onUpdateMainWindow('updateFontWeight', weight);
           },
@@ -141,7 +141,7 @@ class _TextTabState extends ConsumerState<TextTab> {
           },
           onChangeEnd: (value) {
             ref
-                .read(keyboardNotifierProvider.notifier)
+                .read(keyboardProvider.notifier)
                 .updateKeyFontSize(value);
             widget.onUpdateMainWindow('updateKeyFontSize', value);
           },
@@ -157,7 +157,7 @@ class _TextTabState extends ConsumerState<TextTab> {
           },
           onChangeEnd: (value) {
             ref
-                .read(keyboardNotifierProvider.notifier)
+                .read(keyboardProvider.notifier)
                 .updateSpaceFontSize(value);
             widget.onUpdateMainWindow('updateSpaceFontSize', value);
           },

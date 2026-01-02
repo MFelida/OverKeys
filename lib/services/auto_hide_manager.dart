@@ -21,7 +21,7 @@ class AutoHideManager {
 
   /// Resets the auto-hide timer based on user preferences
   void resetAutoHideTimer(WidgetRef ref) {
-    final prefsState = ref.read(preferencesNotifierProvider);
+    final prefsState = ref.read(preferencesProvider);
     if (!prefsState.autoHideEnabled) return;
 
     _autoHideTimer?.cancel();
@@ -32,16 +32,16 @@ class AutoHideManager {
   }
 
   void handleAutoHide(WidgetRef ref) {
-    final prefsState = ref.read(preferencesNotifierProvider);
-    final appState = ref.read(appStateNotifierProvider);
+    final prefsState = ref.read(preferencesProvider);
+    final appState = ref.read(appStateProvider);
     if (prefsState.autoHideEnabled && appState.isWindowVisible) {
       fadeOut(ref);
     }
   }
 
   void fadeOut(WidgetRef ref) {
-    final appState = ref.read(appStateNotifierProvider);
-    final appNotifier = ref.read(appStateNotifierProvider.notifier);
+    final appState = ref.read(appStateProvider);
+    final appNotifier = ref.read(appStateProvider.notifier);
     if (!appState.isWindowVisible) return;
     appNotifier.updateIsWindowVisible(false);
   }
@@ -62,7 +62,7 @@ class AutoHideManager {
   }
 
   void showOverlay(WidgetRef ref, String message, dynamic icon) {
-    final appNotifier = ref.read(appStateNotifierProvider.notifier);
+    final appNotifier = ref.read(appStateProvider.notifier);
     appNotifier.showStatusOverlay(message, icon);
     _overlayTimer?.cancel();
     _overlayTimer = Timer(_overlayDuration, () {
@@ -72,7 +72,7 @@ class AutoHideManager {
 
   void startMouseTracking(WidgetRef ref, Function onTick) {
     _mouseCheckTimer?.cancel();
-    final prefsState = ref.read(preferencesNotifierProvider);
+    final prefsState = ref.read(preferencesProvider);
     if (prefsState.keyboardFollowsMouse && prefsState.advancedSettingsEnabled) {
       _mouseCheckTimer = Timer.periodic(_mouseCheckInterval, (_) => onTick());
     }
