@@ -145,9 +145,7 @@ class StateService {
     }
 
     if (states['appState'] != null) {
-      ref
-          .read(appStateProvider.notifier)
-          .updateAppState(states['appState']!);
+      ref.read(appStateProvider.notifier).updateAppState(states['appState']!);
     }
   }
 }

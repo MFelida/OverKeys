@@ -228,9 +228,8 @@ class KeyEventService {
         );
       }
 
-      updateAutoHideBasedOnLayer(
-          ref.read(keyboardProvider).layout.name ==
-              prefsState.defaultUserLayout?.name);
+      updateAutoHideBasedOnLayer(ref.read(keyboardProvider).layout.name ==
+          prefsState.defaultUserLayout?.name);
     }
   }
 

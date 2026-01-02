@@ -54,9 +54,7 @@ class _GeneralTabState extends ConsumerState<GeneralTab> {
           label: 'Open on system startup',
           value: prefsState.launchAtStartup,
           onChanged: (value) {
-            ref
-                .read(preferencesProvider.notifier)
-                .updateLaunchAtStartup(value);
+            ref.read(preferencesProvider.notifier).updateLaunchAtStartup(value);
             widget.onUpdateMainWindow('updateLaunchAtStartup', value);
           },
         ),
@@ -64,9 +62,7 @@ class _GeneralTabState extends ConsumerState<GeneralTab> {
           label: 'Auto-hide keyboard',
           value: prefsState.autoHideEnabled,
           onChanged: (value) {
-            ref
-                .read(preferencesProvider.notifier)
-                .updateAutoHideEnabled(value);
+            ref.read(preferencesProvider.notifier).updateAutoHideEnabled(value);
             widget.onUpdateMainWindow('updateAutoHideEnabled', value);
           },
         ),
@@ -88,9 +84,7 @@ class _GeneralTabState extends ConsumerState<GeneralTab> {
             label: 'Start hidden',
             value: prefsState.hideAtStartup,
             onChanged: (value) {
-              ref
-                  .read(preferencesProvider.notifier)
-                  .updateHideAtStartup(value);
+              ref.read(preferencesProvider.notifier).updateHideAtStartup(value);
               widget.onUpdateMainWindow('updateHideAtStartup', value);
             },
           ),

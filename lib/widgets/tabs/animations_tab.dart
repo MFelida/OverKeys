@@ -51,9 +51,7 @@ class _AnimationsTabState extends ConsumerState<AnimationsTab> {
           label: 'Enable animations',
           value: keyboardState.animationEnabled,
           onChanged: (value) {
-            ref
-                .read(keyboardProvider.notifier)
-                .updateAnimationEnabled(value);
+            ref.read(keyboardProvider.notifier).updateAnimationEnabled(value);
             widget.onUpdateMainWindow('updateAnimationEnabled', value);
           },
         ),
@@ -62,9 +60,7 @@ class _AnimationsTabState extends ConsumerState<AnimationsTab> {
           value: keyboardState.animationStyle,
           options: ['Depress', 'Raise', 'Grow', 'Shrink'],
           onChanged: (value) {
-            ref
-                .read(keyboardProvider.notifier)
-                .updateAnimationStyle(value!);
+            ref.read(keyboardProvider.notifier).updateAnimationStyle(value!);
             widget.onUpdateMainWindow('updateAnimationStyle', value);
           },
         ),
@@ -78,9 +74,7 @@ class _AnimationsTabState extends ConsumerState<AnimationsTab> {
             setState(() => _localAnimationDuration = value);
           },
           onChangeEnd: (value) {
-            ref
-                .read(keyboardProvider.notifier)
-                .updateAnimationDuration(value);
+            ref.read(keyboardProvider.notifier).updateAnimationDuration(value);
             widget.onUpdateMainWindow('updateAnimationDuration', value);
           },
         ),
@@ -94,9 +88,7 @@ class _AnimationsTabState extends ConsumerState<AnimationsTab> {
             setState(() => _localAnimationScale = value);
           },
           onChangeEnd: (value) {
-            ref
-                .read(keyboardProvider.notifier)
-                .updateAnimationScale(value);
+            ref.read(keyboardProvider.notifier).updateAnimationScale(value);
             widget.onUpdateMainWindow('updateAnimationScale', value);
           },
         ),

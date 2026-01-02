@@ -37,9 +37,7 @@ class ColorsTab extends ConsumerWidget {
                 label: 'Marker (pressed)',
                 currentColor: keyboardState.markerColor,
                 onColorChanged: (value) {
-                  ref
-                      .read(keyboardProvider.notifier)
-                      .updateMarkerColor(value);
+                  ref.read(keyboardProvider.notifier).updateMarkerColor(value);
                   onUpdateMainWindow('updateMarkerColor', value);
                 },
               ),
@@ -47,9 +45,7 @@ class ColorsTab extends ConsumerWidget {
                 label: 'Text (pressed)',
                 currentColor: keyboardState.keyTextColor,
                 onColorChanged: (value) {
-                  ref
-                      .read(keyboardProvider.notifier)
-                      .updateKeyTextColor(value);
+                  ref.read(keyboardProvider.notifier).updateKeyTextColor(value);
                   onUpdateMainWindow('updateKeyTextColor', value);
                 },
               ),

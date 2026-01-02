@@ -68,9 +68,7 @@ class _MarkersTabState extends ConsumerState<MarkersTab> {
             setState(() => _localMarkerOffset = value);
           },
           onChangeEnd: (value) {
-            ref
-                .read(keyboardProvider.notifier)
-                .updateMarkerOffset(value);
+            ref.read(keyboardProvider.notifier).updateMarkerOffset(value);
             widget.onUpdateMainWindow('updateMarkerOffset', value);
           },
         ),
@@ -87,9 +85,7 @@ class _MarkersTabState extends ConsumerState<MarkersTab> {
             setState(() => _localMarkerWidth = value);
           },
           onChangeEnd: (value) {
-            ref
-                .read(keyboardProvider.notifier)
-                .updateMarkerWidth(value);
+            ref.read(keyboardProvider.notifier).updateMarkerWidth(value);
             widget.onUpdateMainWindow('updateMarkerWidth', value);
           },
         ),
@@ -106,9 +102,7 @@ class _MarkersTabState extends ConsumerState<MarkersTab> {
             setState(() => _localMarkerHeight = value);
           },
           onChangeEnd: (value) {
-            ref
-                .read(keyboardProvider.notifier)
-                .updateMarkerHeight(value);
+            ref.read(keyboardProvider.notifier).updateMarkerHeight(value);
             widget.onUpdateMainWindow('updateMarkerHeight', value);
           },
         ),
@@ -122,9 +116,7 @@ class _MarkersTabState extends ConsumerState<MarkersTab> {
             setState(() => _localMarkerBorderRadius = value);
           },
           onChangeEnd: (value) {
-            ref
-                .read(keyboardProvider.notifier)
-                .updateMarkerBorderRadius(value);
+            ref.read(keyboardProvider.notifier).updateMarkerBorderRadius(value);
             widget.onUpdateMainWindow('updateMarkerBorderRadius', value);
           },
         ),

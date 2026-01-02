@@ -100,17 +100,13 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
       if (call.method == 'updateOpacityFromMainWindow' && mounted) {
         final opacity = call.arguments as double;
         ref.read(preferencesProvider.notifier).updateOpacity(opacity);
-        await _stateService
-            .savePreferencesState(ref.read(preferencesProvider));
+        await _stateService.savePreferencesState(ref.read(preferencesProvider));
       }
 
       if (call.method == 'updateAutoHideFromMainWindow' && mounted) {
         final autoHide = call.arguments as bool;
-        ref
-            .read(preferencesProvider.notifier)
-            .updateAutoHideEnabled(autoHide);
-        await _stateService
-            .savePreferencesState(ref.read(preferencesProvider));
+        ref.read(preferencesProvider.notifier).updateAutoHideEnabled(autoHide);
+        await _stateService.savePreferencesState(ref.read(preferencesProvider));
       }
 
       if (call.method == 'requestFocus') {

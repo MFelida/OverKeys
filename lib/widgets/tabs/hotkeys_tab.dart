@@ -25,9 +25,7 @@ class HotKeysTab extends ConsumerWidget {
             label: 'Enable hotkeys',
             value: appState.hotKeysEnabled,
             onChanged: (value) {
-              ref
-                  .read(appStateProvider.notifier)
-                  .updateHotKeysEnabled(value);
+              ref.read(appStateProvider.notifier).updateHotKeysEnabled(value);
               onUpdateMainWindow('updateHotKeysEnabled', value);
             }),
         HotKeyOption(
@@ -45,9 +43,7 @@ class HotKeysTab extends ConsumerWidget {
           onChangePressed: () => _showRecordHotKeyDialog(
             context,
             (value) {
-              ref
-                  .read(appStateProvider.notifier)
-                  .updateVisibilityHotKey(value);
+              ref.read(appStateProvider.notifier).updateVisibilityHotKey(value);
               onUpdateMainWindow('updateVisibilityHotKey', value);
             },
             appState.visibilityHotKey ??
@@ -71,9 +67,7 @@ class HotKeysTab extends ConsumerWidget {
           onChangePressed: () => _showRecordHotKeyDialog(
             context,
             (value) {
-              ref
-                  .read(appStateProvider.notifier)
-                  .updateAutoHideHotKey(value);
+              ref.read(appStateProvider.notifier).updateAutoHideHotKey(value);
               onUpdateMainWindow('updateAutoHideHotKey', value);
             },
             appState.autoHideHotKey ??
@@ -97,9 +91,7 @@ class HotKeysTab extends ConsumerWidget {
           onChangePressed: () => _showRecordHotKeyDialog(
             context,
             (value) {
-              ref
-                  .read(appStateProvider.notifier)
-                  .updateToggleMoveHotKey(value);
+              ref.read(appStateProvider.notifier).updateToggleMoveHotKey(value);
               onUpdateMainWindow('updateToggleMoveHotKey', value);
             },
             appState.toggleMoveHotKey ??

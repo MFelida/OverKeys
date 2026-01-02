@@ -476,9 +476,7 @@ class _MainAppState extends ConsumerState<MainApp>
 
       if (call.method == 'updateShowTopRow') {
         final showTopRow = call.arguments as bool;
-        ref
-            .read(keyboardProvider.notifier)
-            .updateShowTopRow(showTopRow);
+        ref.read(keyboardProvider.notifier).updateShowTopRow(showTopRow);
         _adjustWindowSize();
         return null;
       }

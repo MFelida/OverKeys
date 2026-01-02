@@ -270,8 +270,7 @@ class MethodCallHandler {
       case 'updateAutoHideHotKey':
         final hotKeyJson = _safeArgument<String>(call.arguments, '{}');
         final newHotKey = HotKey.fromJson(jsonDecode(hotKeyJson));
-        final currentAutoHideHotKey =
-            ref.read(appStateProvider).autoHideHotKey;
+        final currentAutoHideHotKey = ref.read(appStateProvider).autoHideHotKey;
         if (currentAutoHideHotKey != null) {
           await hotKeyManager.unregister(currentAutoHideHotKey);
         }

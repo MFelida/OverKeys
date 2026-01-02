@@ -48,9 +48,7 @@ class ConfigurationLoader {
 
   Future<void> loadCustomShiftMappings(WidgetRef ref) async {
     final mappings = await _configService.getCustomShiftMappings();
-    ref
-        .read(keyboardProvider.notifier)
-        .updateCustomShiftMappings(mappings);
+    ref.read(keyboardProvider.notifier).updateCustomShiftMappings(mappings);
   }
 
   Future<void> loadCustomAliases(WidgetRef ref) async {

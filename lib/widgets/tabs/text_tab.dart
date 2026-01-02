@@ -53,9 +53,7 @@ class _TextTabState extends ConsumerState<TextTab> {
             value: keyboardState.fontFamily,
             options: availableFontFamilies,
             onChanged: (value) {
-              ref
-                  .read(keyboardProvider.notifier)
-                  .updateFontFamily(value!);
+              ref.read(keyboardProvider.notifier).updateFontFamily(value!);
               widget.onUpdateMainWindow('updateFontFamily', value);
             },
             subtitle:
@@ -124,9 +122,7 @@ class _TextTabState extends ConsumerState<TextTab> {
               default:
                 weight = FontWeight.w500;
             }
-            ref
-                .read(keyboardProvider.notifier)
-                .updateFontWeight(weight);
+            ref.read(keyboardProvider.notifier).updateFontWeight(weight);
             widget.onUpdateMainWindow('updateFontWeight', weight);
           },
         ),
@@ -140,9 +136,7 @@ class _TextTabState extends ConsumerState<TextTab> {
             setState(() => _localKeyFontSize = value);
           },
           onChangeEnd: (value) {
-            ref
-                .read(keyboardProvider.notifier)
-                .updateKeyFontSize(value);
+            ref.read(keyboardProvider.notifier).updateKeyFontSize(value);
             widget.onUpdateMainWindow('updateKeyFontSize', value);
           },
         ),
@@ -156,9 +150,7 @@ class _TextTabState extends ConsumerState<TextTab> {
             setState(() => _localSpaceFontSize = value);
           },
           onChangeEnd: (value) {
-            ref
-                .read(keyboardProvider.notifier)
-                .updateSpaceFontSize(value);
+            ref.read(keyboardProvider.notifier).updateSpaceFontSize(value);
             widget.onUpdateMainWindow('updateSpaceFontSize', value);
           },
         ),
