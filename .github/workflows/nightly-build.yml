@@ -1,0 +1,223 @@
+name: Nightly & Pre-release Builds
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  # Detect if commit is a feat or fix to trigger nightly build
+  detect-commit-type:
+    runs-on: ubuntu-latest
+    outputs:
+      is_feature_or_fix: ${{ steps.check.outputs.is_feature_or_fix }}
+      commit_type: ${{ steps.check.outputs.commit_type }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Detect commit type
+        id: check
+        run: |
+          # Get the commit message of HEAD
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          echo "Last commit message: $COMMIT_MSG"
+
+          # Skip if it's a release commit or merge commit
+          if [[ "$COMMIT_MSG" == "chore: release"* ]] || [[ "$COMMIT_MSG" == "Merge"* ]]; then
+            echo "is_feature_or_fix=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Check if commit starts with feat: or fix:
+          if [[ "$COMMIT_MSG" == "feat:"* ]]; then
+            echo "is_feature_or_fix=true" >> $GITHUB_OUTPUT
+            echo "commit_type=feature" >> $GITHUB_OUTPUT
+            echo "✅ Detected feature commit - will build nightly"
+          elif [[ "$COMMIT_MSG" == "fix:"* ]]; then
+            echo "is_feature_or_fix=true" >> $GITHUB_OUTPUT
+            echo "commit_type=fix" >> $GITHUB_OUTPUT
+            echo "✅ Detected fix commit - will build nightly"
+          else
+            echo "is_feature_or_fix=false" >> $GITHUB_OUTPUT
+            echo "⏭️ Not a feature or fix commit - skipping nightly build"
+          fi
+
+  # Build nightly installers
+  build-nightly:
+    needs: detect-commit-type
+    if: needs.detect-commit-type.outputs.is_feature_or_fix == 'true'
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate nightly version
+        id: version
+        run: |
+          # Get current date and commit SHA
+          $date = Get-Date -Format "yyyyMMdd"
+          $commitSha = "${{ github.sha }}".Substring(0, 7)
+          $commitType = "${{ needs.detect-commit-type.outputs.commit_type }}"
+          
+          # Create version: v0.3.2-nightly.20260102-abc1234
+          $version = "$commitType-nightly.$date-$commitSha"
+          echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+          echo "BUILD_NAME=OverKeys-$version" >> $env:GITHUB_OUTPUT
+          
+          Write-Host "📌 Generated nightly version: $version"
+        shell: pwsh
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.35.5"
+          channel: "stable"
+          cache: true
+
+      - name: Install InnoSetup
+        run: |
+          choco install innosetup -y
+          Write-Host "✅ InnoSetup installed"
+        shell: pwsh
+
+      - name: Get dependencies
+        run: flutter pub get
+        shell: pwsh
+
+      - name: Build Flutter Windows app
+        run: |
+          .\scripts\ci\build_windows.ps1 -StagingPath "${{ runner.temp }}\inno-staging"
+        shell: pwsh
+
+      - name: Compile InnoSetup installer
+        run: |
+          # For nightly builds, we use a different naming scheme
+          .\scripts\ci\compile_installer.ps1 `
+            -StagingPath "${{ runner.temp }}\inno-staging" `
+            -OutputPath "${{ runner.temp }}\output" `
+            -Version "${{ steps.version.outputs.VERSION }}"
+        shell: pwsh
+
+      - name: Create portable ZIP archive
+        run: |
+          Copy-Item -Path "LICENSE" -Destination "${{ runner.temp }}\inno-staging"
+
+          .\scripts\ci\compile_zip.ps1 `
+            -StagingPath "${{ runner.temp }}\inno-staging" `
+            -OutputPath "${{ runner.temp }}\output" `
+            -Version "${{ steps.version.outputs.VERSION }}"
+        shell: pwsh
+
+      - name: Test installer integrity
+        id: integrity_test
+        run: |
+          $version = "${{ steps.version.outputs.VERSION }}"
+          $exeFile = "${{ runner.temp }}/output/overkeys_${version}_x64_setup.exe"
+          $zipFile = "${{ runner.temp }}/output/overkeys_${version}_x64.zip"
+
+          Write-Host "🔍 Running installer integrity checks..."
+
+          # Check files exist
+          if (-not (Test-Path $exeFile)) {
+            Write-Host "❌ EXE file not found: $exeFile"
+            exit 1
+          }
+          if (-not (Test-Path $zipFile)) {
+            Write-Host "❌ ZIP file not found: $zipFile"
+            exit 1
+          }
+
+          # Check file sizes are reasonable
+          $exeSize = (Get-Item $exeFile).Length / 1MB
+          $zipSize = (Get-Item $zipFile).Length / 1MB
+
+          if ($exeSize -lt 10) {
+            Write-Host "❌ EXE file suspiciously small: $exeSize MB"
+            exit 1
+          }
+          if ($zipSize -lt 5) {
+            Write-Host "❌ ZIP file suspiciously small: $zipSize MB"
+            exit 1
+          }
+
+          Write-Host "✅ File size checks passed"
+          Write-Host "   EXE: $([math]::Round($exeSize, 2)) MB"
+          Write-Host "   ZIP: $([math]::Round($zipSize, 2)) MB"
+
+          # Verify ZIP integrity
+          Write-Host "🔍 Verifying ZIP archive integrity..."
+          try {
+            $zipTest = Test-Path -Path $zipFile -PathType Leaf
+            if (-not $zipTest) {
+              Write-Host "❌ ZIP archive is invalid or corrupted"
+              exit 1
+            }
+            $shell = New-Object -ComObject shell.application
+            $zip = $shell.NameSpace($zipFile)
+            $zipItemCount = $zip.Items().Count
+            if ($zipItemCount -eq 0) {
+              Write-Host "❌ ZIP archive is empty"
+              exit 1
+            }
+            Write-Host "✅ ZIP integrity verified ($zipItemCount items found)"
+          } catch {
+            Write-Host "❌ Failed to verify ZIP: $_"
+            exit 1
+          }
+
+          echo "INTEGRITY_PASSED=true" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
+      - name: Create pre-release on GitHub
+        if: steps.integrity_test.outputs.INTEGRITY_PASSED == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ${{ runner.temp }}/output/overkeys_${{ steps.version.outputs.VERSION }}_x64_setup.exe
+            ${{ runner.temp }}/output/overkeys_${{ steps.version.outputs.VERSION }}_x64.zip
+          tag_name: ${{ steps.version.outputs.VERSION }}
+          name: "🌙 Nightly: ${{ steps.version.outputs.VERSION }}"
+          body: |
+            ## 🌙 Nightly Build
+
+            **Version:** `${{ steps.version.outputs.VERSION }}`
+            **Type:** ${{ needs.detect-commit-type.outputs.commit_type }}
+            **Build Date:** ${{ github.event.head_commit.timestamp }}
+            **Commit:** [${{ github.sha }}](${{ github.event.head_commit.url }})
+
+            ### About Nightly Builds
+            These are automatically built from `feat:` and `fix:` commits to `main`. They're useful for testing new features and fixes before official releases.
+
+            ### ⚠️ Pre-release Notice
+            This is a **pre-release** build and may be unstable. Use for testing only.
+
+            ### 📥 Installation
+            Download either:
+            - **Installer:** `overkeys_${{ steps.version.outputs.VERSION }}_x64_setup.exe` - Run the setup wizard
+            - **Portable:** `overkeys_${{ steps.version.outputs.VERSION }}_x64.zip` - Extract and run
+
+            ### 🐛 Found an issue?
+            Please report it with the nightly version number for faster debugging.
+          prerelease: true
+          draft: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Report status
+        if: always()
+        run: |
+          if ("${{ steps.integrity_test.outputs.INTEGRITY_PASSED }}" -eq "true") {
+            Write-Host "✅ Nightly build completed successfully!"
+            Write-Host "📦 Pre-release created: ${{ steps.version.outputs.VERSION }}"
+          } else {
+            Write-Host "❌ Nightly build failed during integrity checks"
+            exit 1
+          }
+        shell: pwsh
