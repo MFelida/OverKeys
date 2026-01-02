@@ -1,11 +1,11 @@
-name: Build Release Installers
+name: Release Pipeline
 
 on:
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened]
   release:
-    types: [created]
+    types: [created, published]
   workflow_dispatch:
     inputs:
       version:
@@ -355,10 +355,181 @@ jobs:
           retention-days: 7
           if-no-files-found: error
 
+      - name: Test installer integrity
+        id: integrity_test
+        run: |
+          $version = "${{ inputs.version }}"
+          $exeFile = "${{ runner.temp }}/output/overkeys_${version}_x64_setup.exe"
+          $zipFile = "${{ runner.temp }}/output/overkeys_${version}_x64.zip"
+
+          Write-Host "🔍 Running installer integrity checks..."
+
+          # Check files exist
+          if (-not (Test-Path $exeFile)) {
+            Write-Host "❌ EXE file not found: $exeFile"
+            exit 1
+          }
+          if (-not (Test-Path $zipFile)) {
+            Write-Host "❌ ZIP file not found: $zipFile"
+            exit 1
+          }
+
+          # Check file sizes are reasonable
+          $exeSize = (Get-Item $exeFile).Length / 1MB
+          $zipSize = (Get-Item $zipFile).Length / 1MB
+
+          if ($exeSize -lt 10) {
+            Write-Host "❌ EXE file suspiciously small: $exeSize MB"
+            exit 1
+          }
+          if ($zipSize -lt 5) {
+            Write-Host "❌ ZIP file suspiciously small: $zipSize MB"
+            exit 1
+          }
+
+          Write-Host "✅ File size checks passed"
+          Write-Host "   EXE: $([math]::Round($exeSize, 2)) MB"
+          Write-Host "   ZIP: $([math]::Round($zipSize, 2)) MB"
+
+          # Verify ZIP integrity
+          Write-Host "🔍 Verifying ZIP archive integrity..."
+          try {
+            $zipTest = Test-Path -Path $zipFile -PathType Leaf
+            if (-not $zipTest) {
+              Write-Host "❌ ZIP archive is invalid or corrupted"
+              exit 1
+            }
+            # Try to enumerate ZIP contents
+            $shell = New-Object -ComObject shell.application
+            $zip = $shell.NameSpace($zipFile)
+            $zipItemCount = $zip.Items().Count
+            if ($zipItemCount -eq 0) {
+              Write-Host "❌ ZIP archive is empty"
+              exit 1
+            }
+            Write-Host "✅ ZIP integrity verified ($zipItemCount items found)"
+          } catch {
+            Write-Host "❌ Failed to verify ZIP: $_"
+            exit 1
+          }
+
+          echo "INTEGRITY_PASSED=true" >> $env:GITHUB_OUTPUT
+          Write-Host "✅ All integrity checks passed"
+        shell: pwsh
+
+      - name: Test installer installation (smoke test)
+        id: install_test
+        run: |
+          $version = "${{ inputs.version }}"
+          $exeFile = "${{ runner.temp }}/output/overkeys_${version}_x64_setup.exe"
+          $installDir = "C:\Program Files\OverKeys-Test"
+
+          Write-Host "🚀 Running installer smoke test..."
+          Write-Host "📦 Installing to: $installDir"
+
+          # Run silent installation
+          $timeout = 300 # 5 minutes
+          $process = Start-Process `
+            -FilePath $exeFile `
+            -ArgumentList "/SILENT /D=$installDir" `
+            -PassThru `
+            -NoNewWindow
+
+          $processCompleted = $process | Wait-Process -Timeout $timeout -PassThru -ErrorAction SilentlyContinue
+
+          if ($null -eq $processCompleted) {
+            Write-Host "❌ Installer timed out after $timeout seconds"
+            Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+            exit 1
+          }
+
+          if ($process.ExitCode -ne 0) {
+            Write-Host "❌ Installer failed with exit code: $($process.ExitCode)"
+            exit 1
+          }
+
+          Write-Host "✅ Installer completed successfully"
+
+          # Verify installation files exist
+          Write-Host "🔍 Verifying installation files..."
+          $appExe = "$installDir\OverKeys.exe"
+          if (-not (Test-Path $appExe)) {
+            Write-Host "❌ App executable not found at: $appExe"
+            exit 1
+          }
+
+          Write-Host "✅ App executable found: $appExe"
+
+          # Try to launch app (headless, will timeout after 10 seconds)
+          Write-Host "🚀 Attempting to launch application..."
+          try {
+            $launchProcess = Start-Process `
+              -FilePath $appExe `
+              -PassThru `
+              -NoNewWindow `
+              -ErrorAction SilentlyContinue
+
+            if ($null -ne $launchProcess) {
+              Start-Sleep -Seconds 5
+              if ($launchProcess.HasExited -eq $false) {
+                Write-Host "✅ Application launched and is running"
+                Stop-Process -Id $launchProcess.Id -Force -ErrorAction SilentlyContinue
+              } else {
+                Write-Host "⚠️ Application exited too quickly: $($launchProcess.ExitCode)"
+              }
+            } else {
+              Write-Host "⚠️ Could not verify if application launched"
+            }
+          } catch {
+            Write-Host "⚠️ Warning during launch test: $_"
+          }
+
+          # Uninstall
+          Write-Host "🧹 Cleaning up (uninstalling)..."
+          $uninstallerDir = "$installDir"
+          $uninstaller = Get-ChildItem "$uninstallerDir" -Filter "unins*.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+
+          if ($null -ne $uninstaller) {
+            $uninstallProcess = Start-Process `
+              -FilePath $uninstaller.FullName `
+              -ArgumentList "/SILENT" `
+              -PassThru `
+              -NoNewWindow
+
+            $uninstallProcess | Wait-Process -Timeout 120 -ErrorAction SilentlyContinue
+            Write-Host "✅ Uninstall completed"
+          } else {
+            Write-Host "⚠️ Could not find uninstaller, manual cleanup may be needed"
+            Remove-Item -Path $installDir -Recurse -Force -ErrorAction SilentlyContinue
+          }
+
+          echo "INSTALL_TEST_PASSED=true" >> $env:GITHUB_OUTPUT
+          Write-Host "✅ Installation smoke test passed"
+        shell: pwsh
+        continue-on-error: false
+
+      - name: Report test results
+        if: always()
+        run: |
+          $integrityPassed = "${{ steps.integrity_test.outputs.INTEGRITY_PASSED }}" -eq "true"
+          $installPassed = "${{ steps.install_test.outputs.INSTALL_TEST_PASSED }}" -eq "true"
+
+          Write-Host "📊 Test Results Summary:"
+          Write-Host "├─ Integrity Check: $(if ($integrityPassed) { '✅ PASSED' } else { '❌ FAILED' })"
+          Write-Host "└─ Installation Test: $(if ($installPassed) { '✅ PASSED' } else { '❌ FAILED' })"
+
+          if (-not ($integrityPassed -and $installPassed)) {
+            Write-Host "`n⚠️ Some tests failed. Review the logs above for details."
+            exit 1
+          }
+
+          Write-Host "`n✅ All automated installer tests passed!"
+        shell: pwsh
+
   # Upload installers to release after PR is merged
   upload-release:
     runs-on: windows-latest
-    if: github.event_name == 'release'
+    if: github.event_name == 'release' && (github.event.action == 'created' || github.event.action == 'published')
     timeout-minutes: 30
 
     steps:
