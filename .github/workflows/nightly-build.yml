@@ -65,19 +65,18 @@ jobs:
           $date = Get-Date -Format "yyyyMMdd"
           $commitSha = "${{ github.sha }}".Substring(0, 7)
           $commitType = "${{ needs.detect-commit-type.outputs.commit_type }}"
-          
+
           # Create version: v0.3.2-nightly.20260102-abc1234
           $version = "$commitType-nightly.$date-$commitSha"
           echo "VERSION=$version" >> $env:GITHUB_OUTPUT
           echo "BUILD_NAME=OverKeys-$version" >> $env:GITHUB_OUTPUT
-          
+
           Write-Host "📌 Generated nightly version: $version"
         shell: pwsh
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.35.5"
           channel: "stable"
           cache: true
 
