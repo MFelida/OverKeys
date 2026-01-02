@@ -6,7 +6,7 @@ Your CI/CD pipeline has been modernized with the following improvements:
 
 1. **Optimized Test Workflow** - Skip tests on doc-only changes
 2. **Hybrid Installer Testing** - Automated integrity checks + silent install validation
-3. **Nightly Pre-release Builds** - Auto-build on feat/fix commits  
+3. **Nightly Pre-release Builds** - Auto-build on feat/fix commits
 4. **Smart Release Approval** - Label-based approval gate for publishing
 5. **Streamlined Release Flow** - Manual review → Auto-merge → Auto-publish
 
@@ -26,8 +26,8 @@ on:
   push:
     branches: [main, develop, refactor/**]
     paths-ignore:
-      - 'docs/**'
-      - '**.md'
+      - "docs/**"
+      - "**.md"
 ```
 
 **Benefits:**
@@ -38,7 +38,7 @@ on:
 
 ---
 
-### 2. **build-release.yml** - Release Installer Build  
+### 2. **release-pipeline.yml** - Release Installer Build
 
 **Trigger:** PR to `main` (release-please) → Release event
 
@@ -60,7 +60,7 @@ on:
 
 **PR Comment includes:**
 
-``` text
+```text
 ## Release Insta.llers Built
 
 🧪 Automated Tests: ✅ PASSED
@@ -92,7 +92,7 @@ on:
 
 **Example flow:**
 
-``` text
+```text
 You merge: "feat: Add keyboard customization"
     ↓ (webhook triggers on push to main)
 Nightly workflow starts
@@ -128,7 +128,7 @@ Users can download to test new features
 
 **Workflow:**
 
-``` text
+```text
 release-please creates PR: "chore: release v0.3.3"
     ↓
 release-approval.yml adds comment with instructions
@@ -167,7 +167,7 @@ Uses existing conventional commit detection.
 
 ---
 
-### 6. **build-release.yml** - Minor changes
+### 6. **release-pipeline.yml** - Minor changes
 
 - Installer tests now report results in PR comment
 - Tests must pass (workflow fails if integrity/install tests fail)
@@ -182,16 +182,16 @@ graph TD
     A["💬 You write code\n(feat: or fix: commit)"] --> B["📝 Push to main"]
     B --> C["🌙 Nightly workflow runs\n(auto-builds pre-release)"]
     C --> D["👥 Users test nightly build"]
-    
+
     B --> E["🤖 release-please runs\n(creates version PR)"]
     E --> F["📋 Installer tests run\n(integrity + smoke test)"]
     F --> G["👀 You review PR\n(features, changelog, tests)"]
-    
+
     G --> H{"Approve?"}
     H -->|"Add label: approved-for-release"| I["🔄 Workflow auto-merges"]
     H -->|"Not ready"| J["✏️ Request changes"]
     J --> G
-    
+
     I --> K["📦 release-please publishes\n(creates GitHub Release)"]
     K --> L["✅ Workflow publishes draft\n(release is now public)"]
     L --> M["🪟 winget-releaser publishes\n(Windows Package Manager)"]
@@ -202,16 +202,16 @@ graph TD
 
 ## Key Timings
 
-| Step | Duration | Notes |
-| ------ | ---------- | ------- |
-| Push to main | Immediate | Nightly build starts ~5s |
-| Nightly build complete | ~5 minutes | (Includes installer tests) |
-| release-please creates PR | ~30 seconds | After your last commit |
-| Installer tests on PR | ~3 minutes | Integrity + smoke test |
-| You review | ⏱️ Manual | Typically 5-30 minutes |
-| Auto-merge to publish | ~1 minute | After you add label |
-| winget publish | ~5 minutes | Platform-side delay |
-| **Total time to release** | ~15 minutes | (After you approve) |
+| Step                      | Duration    | Notes                      |
+| ------------------------- | ----------- | -------------------------- |
+| Push to main              | Immediate   | Nightly build starts ~5s   |
+| Nightly build complete    | ~5 minutes  | (Includes installer tests) |
+| release-please creates PR | ~30 seconds | After your last commit     |
+| Installer tests on PR     | ~3 minutes  | Integrity + smoke test     |
+| You review                | ⏱️ Manual   | Typically 5-30 minutes     |
+| Auto-merge to publish     | ~1 minute   | After you add label        |
+| winget publish            | ~5 minutes  | Platform-side delay        |
+| **Total time to release** | ~15 minutes | (After you approve)        |
 
 ---
 
@@ -220,7 +220,7 @@ graph TD
 ### Workflows Updated
 
 - `test.yml` - Added paths-ignore for docs
-- `build-release.yml` - Added integrity + smoke tests
+- `release-pipeline.yml` - Added integrity + smoke tests
 
 ### Workflows Created
 

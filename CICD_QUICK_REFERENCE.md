@@ -4,7 +4,7 @@
 
 ### When you merge a feature to main
 
-``` text
+```text
 ✅ Feature merged to main
    ↓
 🌙 Nightly build automatically created
@@ -16,25 +16,25 @@
 
 ### When you're ready to release
 
-``` text
+```text
 ✅ Work on main branch with conventional commits
    (feat: ... or fix: ... or chore: ...)
-   
+
 ✅ release-please automatically creates version PR
    (checks every push to main)
-   
+
 ✅ Review the PR:
    - Check changelog
    - Verify version bump
    - See installer test results in PR comments
-   
+
 ✅ Add label "approved-for-release"
    (or just wait for auto-merge)
-   
+
 ✅ Workflow auto-merges PR
-   
+
 ✅ GitHub Release created (draft → published)
-   
+
 ✅ winget-releaser publishes to Windows Package Manager
    (this happens automatically 5 min later)
 ```
@@ -43,14 +43,14 @@
 
 ## Workflow Files
 
-| File | Trigger | Purpose | When to Check |
-| ------ | --------- | --------- | -------------- |
-| `test.yml` | Push/PR | Unit tests + code quality | On every code change |
-| `nightly-build.yml` | Push to main (feat:/fix:) | Pre-release builds | After merging features |
-| `build-release.yml` | Release-please PR + Release event | Installer building + testing | During release process |
-| `release-approval.yml` | PR label: `approved-for-release` | Auto-merge + publish | When approving release |
-| `release-please.yml` | Push to main | Version bump automation | Creates release PRs |
-| `winget-releaser.yml` | Release published | Windows Package Manager | Auto, ~5 min after publish |
+| File                   | Trigger                           | Purpose                      | When to Check              |
+| ---------------------- | --------------------------------- | ---------------------------- | -------------------------- |
+| `test.yml`             | Push/PR                           | Unit tests + code quality    | On every code change       |
+| `nightly-build.yml`    | Push to main (feat:/fix:)         | Pre-release builds           | After merging features     |
+| `release-pipeline.yml` | Release-please PR + Release event | Installer building + testing | During release process     |
+| `release-approval.yml` | PR label: `approved-for-release`  | Auto-merge + publish         | When approving release     |
+| `release-please.yml`   | Push to main                      | Version bump automation      | Creates release PRs        |
+| `winget-releaser.yml`  | Release published                 | Windows Package Manager      | Auto, ~5 min after publish |
 
 ---
 
@@ -66,13 +66,13 @@ Before first release, create this GitHub label:
 
 ## Typical Timeline
 
-``` text
+```text
 Monday 10:00 AM
 ├─ You finish feature
 └─ git commit -m "feat: Add custom hotkeys"
    └─ git push
 
-Monday 10:05 AM  
+Monday 10:05 AM
 ├─ Nightly build created
 └─ v0.3.3-feat-nightly.20260103 ready to download
    (testers can try new feature)
@@ -107,7 +107,7 @@ Wednesday 2:20 PM
 3. Look for comment: "## Release Installers Built"
 4. Check test status: ✅ PASSED or ❌ FAILED
 
-### Check nightly builds  
+### Check nightly builds
 
 1. Go to **Actions** tab
 2. Filter by **nightly-build.yml**
@@ -127,7 +127,7 @@ If automated tests pass but you find an issue:
 
 ### Option 1: Fix and re-run
 
-``` text
+```text
 Fix the issue in a new commit
 git push origin main
   → release-please creates a patch PR automatically
@@ -136,7 +136,7 @@ git push origin main
 
 ### Option 2: Emergency publish (not recommended)
 
-``` text
+```text
 GitHub web UI → Releases
 Click "Edit" on draft release
 Click "Publish release" manually
@@ -178,7 +178,7 @@ A: Yes, just don't start with `feat:` or `fix:`. Use `chore:` or other prefixes.
 For issues, check:
 
 1. Actions tab → Workflow logs
-2. PR comments → Installer test results  
+2. PR comments → Installer test results
 3. Releases page → Pre-releases vs official
 
 For questions, review: `CI_CD_REVAMP_GUIDE.md`

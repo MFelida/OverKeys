@@ -12,11 +12,11 @@ All workflows have been updated and documented. Follow this checklist to deploy.
 
 - [ ] Review all modified workflow files:
   - [ ] `.github/workflows/test.yml` - doc skip optimization
-  - [ ] `.github/workflows/build-release.yml` - installer testing added
+  - [ ] `.github/workflows/release-pipeline.yml` - installer testing added
   - [ ] `.github/workflows/nightly-build.yml` - ⭐ NEW
   - [ ] `.github/workflows/release-approval.yml` - ⭐ NEW
 
-### Documentation Review  
+### Documentation Review
 
 - [ ] Read `CI_CD_REVAMP_GUIDE.md` - full overview
 - [ ] Read `CICD_QUICK_REFERENCE.md` - quick reference
@@ -178,7 +178,7 @@ git push origin main
 - [ ] Check: <https://github.com/conventoangelo/OverKeys/tree/main/.github/workflows>
 - [ ] Confirm all 6 workflow files exist
 - [ ] Confirm new files: nightly-build.yml, release-approval.yml
-- [ ] Confirm edits to: test.yml, build-release.yml
+- [ ] Confirm edits to: test.yml, release-pipeline.yml
 
 ### Verify Label Created
 
@@ -192,7 +192,7 @@ When creating first release post-deployment:
 
 - [ ] Watch Actions tab for all workflow runs
 - [ ] Verify test.yml runs on any code changes
-- [ ] Verify build-release.yml installer tests pass
+- [ ] Verify release-pipeline.yml installer tests pass
 - [ ] Verify release-approval.yml instructions appear
 - [ ] Test label approval triggers auto-merge/publish
 - [ ] Confirm winget-releaser runs after publish
@@ -208,7 +208,7 @@ You'll know deployment is successful when:
 ✅ Nightly builds create pre-releases on feat/fix commits  
 ✅ Release-please PR shows installer test results  
 ✅ Adding `approved-for-release` label triggers auto-publish  
-✅ No errors in any workflow runs  
+✅ No errors in any workflow runs
 
 ---
 
@@ -225,7 +225,7 @@ git log --oneline -1
 
 ### Issue 2: Installer tests timeout
 
-**Solution:** Increase timeout in build-release.yml
+**Solution:** Increase timeout in release-pipeline.yml
 
 - Change `timeout-minutes: 30` to `timeout-minutes: 45`
 
@@ -245,13 +245,13 @@ git log --oneline -1
 
 For reference, these documents were created:
 
-| File | Purpose |
-| ------ | --------- |
-| `CI_CD_REVAMP_GUIDE.md` | Complete implementation guide with diagrams |
-| `CICD_QUICK_REFERENCE.md` | One-page quick reference for daily use |
-| `IMPLEMENTATION_SUMMARY.md` | Technical details of what changed |
-| `SETUP_GITHUB_LABEL.md` | Instructions for creating GitHub label |
-| `DEPLOYMENT_CHECKLIST.md` | This file - deployment steps |
+| File                        | Purpose                                     |
+| --------------------------- | ------------------------------------------- |
+| `CI_CD_REVAMP_GUIDE.md`     | Complete implementation guide with diagrams |
+| `CICD_QUICK_REFERENCE.md`   | One-page quick reference for daily use      |
+| `IMPLEMENTATION_SUMMARY.md` | Technical details of what changed           |
+| `SETUP_GITHUB_LABEL.md`     | Instructions for creating GitHub label      |
+| `DEPLOYMENT_CHECKLIST.md`   | This file - deployment steps                |
 
 ---
 

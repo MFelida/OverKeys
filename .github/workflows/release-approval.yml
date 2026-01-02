@@ -69,7 +69,7 @@ jobs:
 
             ### Step 3: Monitor Publishing
             Once merged, check [Actions](https://github.com/${{ github.repository }}/actions) for:
-            - **build-release**: Uploads installers to release
+            - **release-pipeline**: Uploads installers to release
             - **winget-releaser**: Publishes to Windows Package Manager (~5 min delay)
 
             ---

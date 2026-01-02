@@ -35,7 +35,7 @@ on:
 
 ---
 
-### 2. **build-release.yml** - Enhanced Installer Testing ✅
+### 2. **release-pipeline.yml** - Enhanced Installer Testing ✅
 
 **Lines Changed:** 58-255  
 **What:** Added comprehensive hybrid installer testing
@@ -43,11 +43,13 @@ on:
 #### New Test Steps
 
 1. **Test installer integrity** (lines 58-100)
+
    - Verifies EXE/ZIP files exist
    - Checks file sizes (EXE > 10MB, ZIP > 5MB)
    - Validates ZIP archive is readable
 
 2. **Test installer installation** (lines 102-225)
+
    - Silent install to test directory
    - Verifies app executable created
    - Attempts to launch app for 5 seconds
@@ -55,6 +57,7 @@ on:
    - Logs all results
 
 3. **Report test results** (lines 227-242)
+
    - Summarizes pass/fail status
    - Fails workflow if tests don't pass
    - Clear output for debugging
@@ -73,11 +76,11 @@ on:
 
 **Test Output Example:**
 
-``` text
+```text
 ## Release Installers Built
 
 **Version:** `v0.3.3`
-**Build Run:** [#42](...) 
+**Build Run:** [#42](...)
 
 ### 🧪 Automated Tests: ✅ PASSED
 - ✅ File Integrity
@@ -99,7 +102,7 @@ on:
 
 #### How it works
 
-``` text
+```text
 You push "feat: Add feature" to main
     ↓
 Workflow detects "feat:" prefix
@@ -141,7 +144,7 @@ Users can download to test
 
 #### Release Flow
 
-``` text
+```text
 release-please creates PR: "chore: release v0.3.3"
     ↓
 release-approval.yml adds instructions comment
@@ -201,14 +204,14 @@ winget-releaser auto-triggers (via release event)
 
 ## Files Modified Summary
 
-| File | Changes | Impact |
-| ------ | --------- | -------- |
-| `.github/workflows/test.yml` | Added paths-ignore | Skip tests on docs |
-| `.github/workflows/build-release.yml` | Added 3 test jobs | Validate installers before release |
-| `.github/workflows/nightly-build.yml` | ⭐ NEW | Auto pre-release builds |
-| `.github/workflows/release-approval.yml` | ⭐ NEW | Approval gate for publishing |
-| `CI_CD_REVAMP_GUIDE.md` | ⭐ NEW | Complete implementation guide |
-| `CICD_QUICK_REFERENCE.md` | ⭐ NEW | Quick reference card |
+| File                                     | Changes            | Impact                             |
+| ---------------------------------------- | ------------------ | ---------------------------------- |
+| `.github/workflows/test.yml`             | Added paths-ignore | Skip tests on docs                 |
+| `.github/workflows/release-pipeline.yml` | Added 3 test jobs  | Validate installers before release |
+| `.github/workflows/nightly-build.yml`    | ⭐ NEW             | Auto pre-release builds            |
+| `.github/workflows/release-approval.yml` | ⭐ NEW             | Approval gate for publishing       |
+| `CI_CD_REVAMP_GUIDE.md`                  | ⭐ NEW             | Complete implementation guide      |
+| `CICD_QUICK_REFERENCE.md`                | ⭐ NEW             | Quick reference card               |
 
 ---
 
@@ -227,18 +230,18 @@ This label tells the release-approval workflow to proceed with merging and publi
 
 ## Release Timeline (New)
 
-| Time | Step | Duration |
-| ------ | ------ | ---------- |
-| T+0 | Push feat/fix to main | Immediate |
-| T+1 | Nightly build starts | ~5 minutes |
-| T+5 | Nightly pre-release available | Users can download |
-| T+0 | release-please creates PR | ~30 seconds after commit |
-| T+3 | Installer tests complete | ~3 minutes |
-| T+3-30 | You review PR | Manual |
-| T+30 | You add approval label | 1 click |
-| T+31 | Auto-merge to main | ~1 minute |
-| T+32 | Release published | Public release created |
-| T+37 | winget published | Windows Package Manager |
+| Time   | Step                          | Duration                 |
+| ------ | ----------------------------- | ------------------------ |
+| T+0    | Push feat/fix to main         | Immediate                |
+| T+1    | Nightly build starts          | ~5 minutes               |
+| T+5    | Nightly pre-release available | Users can download       |
+| T+0    | release-please creates PR     | ~30 seconds after commit |
+| T+3    | Installer tests complete      | ~3 minutes               |
+| T+3-30 | You review PR                 | Manual                   |
+| T+30   | You add approval label        | 1 click                  |
+| T+31   | Auto-merge to main            | ~1 minute                |
+| T+32   | Release published             | Public release created   |
+| T+37   | winget published              | Windows Package Manager  |
 
 **Total time to release:** ~15 minutes after approval (was previously manual)
 
@@ -252,7 +255,7 @@ This label tells the release-approval workflow to proceed with merging and publi
 ❌ No pre-release/nightly builds  
 ❌ Manual installer verification  
 ❌ Manual GitHub release publishing  
-❌ Confusing release workflow  
+❌ Confusing release workflow
 
 ### After Revamp
 
@@ -261,7 +264,7 @@ This label tells the release-approval workflow to proceed with merging and publi
 ✅ Automated installer validation (integrity + smoke test)  
 ✅ Approval gate for safe publishing  
 ✅ Auto-publish via label (no UI clicking)  
-✅ Clear, documented release process  
+✅ Clear, documented release process
 
 ---
 
@@ -307,10 +310,12 @@ git push origin main
    ```
 
 2. **Create label** in GitHub
+
    - Go to Settings → Labels
    - Create `approved-for-release` label
 
 3. **Test workflows** (optional but recommended)
+
    - Create test commits
    - Watch Actions tab
    - Verify behaviors match documentation
