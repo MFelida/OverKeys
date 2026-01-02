@@ -31,7 +31,7 @@ class AboutTab extends StatelessWidget {
                     fontSize: 16,
                     fontWeight: FontWeight.w600)),
             const SizedBox(height: 10),
-            Text('© 2024 Angelo Convento',
+            Text('© ${DateTime.now().year} Angelo Convento',
                 style: TextStyle(
                     color: colorScheme.onSurface.withAlpha(153),
                     fontSize: 15,
@@ -59,6 +59,35 @@ class AboutTab extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () async {
+                await launchUrl(Uri.parse('https://ko-fi.com/H2H6CTQ6A'),
+                    mode: LaunchMode.externalApplication);
+              },
+              style: ElevatedButton.styleFrom(
+                maximumSize: const Size(double.infinity, 50),
+                padding: EdgeInsets.zero,
+              ),
+              child: Image.asset(
+                'assets/images/kofi_blue.png',
+              ),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () async {
+                await launchUrl(
+                    Uri.parse('https://www.buymeacoffee.com/conventoangelo'),
+                    mode: LaunchMode.externalApplication);
+              },
+              style: ElevatedButton.styleFrom(
+                maximumSize: const Size(double.infinity, 50),
+                padding: EdgeInsets.zero,
+              ),
+              child: Image.asset(
+                'assets/images/bmac_yellow.png',
               ),
             ),
           ],
