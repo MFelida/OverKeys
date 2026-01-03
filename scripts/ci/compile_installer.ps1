@@ -33,6 +33,12 @@ $issContent = $issContent -replace 'D:\\inno\\', "$StagingPath\"
 $issContent = $issContent -replace 'D:\\inno-result', $OutputPath
 $issContent = $issContent -replace 'D:\\inno', $StagingPath
 
+# Replace version and output filename placeholders so Inno output matches CI version
+# Update the #define MyAppVersion value
+$issContent = $issContent -replace '(#define MyAppVersion)\s+"[^"]+"', "`$1 \"$Version\""
+# Update OutputBaseFilename to include the version
+$issContent = $issContent -replace 'OutputBaseFilename=overkeys_\{#MyAppVersion\}_x64_setup', "OutputBaseFilename=overkeys_${Version}_x64_setup"
+
 # Create temporary ISS file for compilation
 $tempIssFile = Join-Path $env:TEMP "compile_exe-inno-ci.iss"
 $issContent | Set-Content -Path $tempIssFile -Encoding UTF8
