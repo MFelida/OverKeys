@@ -35,7 +35,7 @@ $issContent = $issContent -replace 'D:\\inno', $StagingPath
 
 # Replace version and output filename placeholders so Inno output matches CI version
 # Update the #define MyAppVersion value
-$issContent = $issContent -replace '(#define MyAppVersion)\s+"[^"]+"', "`$1 \"$Version\""
+$issContent = $issContent -replace '(#define MyAppVersion)\s+"[^"]+"', ('$1 "' + $Version + '"')
 # Update OutputBaseFilename to include the version
 $issContent = $issContent -replace 'OutputBaseFilename=overkeys_\{#MyAppVersion\}_x64_setup', "OutputBaseFilename=overkeys_${Version}_x64_setup"
 
