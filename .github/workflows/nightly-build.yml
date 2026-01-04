@@ -137,6 +137,45 @@ jobs:
             -Version "${{ steps.version.outputs.VERSION }}"
         shell: pwsh
 
+      - name: Fetch Release-Please PR Changelog
+        id: changelog
+        run: |
+          # Find the latest release-please PR
+          $prs = gh pr list `
+            --repo ${{ github.repository }} `
+            --author "release-please[bot]" `
+            --state open `
+            --json number,body `
+            --limit 1
+
+          if ($prs.Count -eq 0) {
+            Write-Host "⚠️ No open release-please PR found, using empty changelog"
+            echo "CHANGELOG=" >> $env:GITHUB_OUTPUT
+            exit 0
+          }
+
+          $pr = $prs[0]
+          $prNumber = $pr.number
+          $body = $pr.body
+
+          # Extract changelog content (everything after "🤖 New release prepared" marker)
+          if ($body -match '🤖 New release prepared\s*---\s*(.+)') {
+            $changelog = $matches[1].Trim()
+          } else {
+            Write-Host "⚠️ Could not extract changelog from PR #$prNumber"
+            $changelog = $body
+          }
+
+          # Remove the Release Please footer
+          $changelog = $changelog -replace '\s*---\s*This PR was generated with.*$', ''
+
+          # Save to environment variable
+          $changelog | Out-File -FilePath "${{ runner.temp }}\changelog.txt" -Encoding UTF8
+          echo "CHANGELOG=$(Get-Content -Path '${{ runner.temp }}\changelog.txt' -Raw)" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create pre-release on GitHub
         uses: softprops/action-gh-release@v2
         with:
@@ -144,28 +183,8 @@ jobs:
             ${{ runner.temp }}/output/overkeys_${{ steps.version.outputs.VERSION }}_x64_setup.exe
             ${{ runner.temp }}/output/overkeys_${{ steps.version.outputs.VERSION }}_x64.zip
           tag_name: ${{ steps.version.outputs.VERSION }}
-          name: "🌙 Nightly: ${{ steps.version.outputs.VERSION }}"
-          body: |
-            ## 🌙 Nightly Build
-
-            **Version:** `${{ steps.version.outputs.VERSION }}`
-            **Type:** nightly
-            **Build Date:** ${{ github.event.head_commit.timestamp }}
-            **Commit:** [${{ github.sha }}](${{ github.event.head_commit.url }})
-
-            ### About Nightly Builds
-            These are automatically built from `feat:` and `fix:` commits to `main`. They're useful for testing new features and fixes before official releases.
-
-            ### ⚠️ Pre-release Notice
-            This is a **pre-release** build and may be unstable. Use for testing only.
-
-            ### 📥 Installation
-            Download either:
-            - **Installer:** overkeys_${{ steps.version.outputs.VERSION }}_x64_setup.exe - Run the setup wizard
-            - **Portable:** overkeys_${{ steps.version.outputs.VERSION }}_x64.zip - Extract and run
-
-            ### 🐛 Found an issue?
-            Please report it with the nightly version number for faster debugging.
+          name: "${{ steps.version.outputs.VERSION }}"
+          body: "${{ steps.changelog.outputs.CHANGELOG }}\n\n### 🐛 Found an issue?\nPlease report it with the nightly version number for faster debugging."
           prerelease: true
           draft: false
         env:
