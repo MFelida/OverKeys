@@ -52,7 +52,6 @@ class KeyEventService {
     void Function() fadeIn,
     void Function() resetAutoHideTimer,
     void Function() cancelAutoHideTimer,
-    void Function(bool) updateAutoHideBasedOnLayer,
   ) {
     try {
       if (message is! List) return;
@@ -138,18 +137,16 @@ class KeyEventService {
       // Handle user layer switching
       if (prefsState.useUserLayout && prefsState.advancedSettingsEnabled) {
         _handleUserLayerSwitching(
-          key,
-          isPressed,
-          ref,
-          keyboardState,
-          keyboardNotifier,
-          appState,
-          appNotifier,
-          prefsState,
-          fadeIn,
-          cancelAutoHideTimer,
-          updateAutoHideBasedOnLayer,
-        );
+            key,
+            isPressed,
+            ref,
+            keyboardState,
+            keyboardNotifier,
+            appState,
+            appNotifier,
+            prefsState,
+            fadeIn,
+            cancelAutoHideTimer);
       }
 
       // Re-read keyboard state as it might have changed during layer switching
@@ -198,7 +195,6 @@ class KeyEventService {
     PreferencesState prefsState,
     void Function() fadeIn,
     void Function() cancelAutoHideTimer,
-    void Function(bool) updateAutoHideBasedOnLayer,
   ) {
     final userLayers = prefsState.userLayers;
     final activeLayer = userLayers.where((l) => l.trigger == key);
@@ -227,9 +223,6 @@ class KeyEventService {
           cancelAutoHideTimer,
         );
       }
-
-      updateAutoHideBasedOnLayer(ref.read(keyboardProvider).layout.name ==
-          prefsState.defaultUserLayout?.name);
     }
   }
 
@@ -369,19 +362,7 @@ class KeyEventService {
     KeyboardState keyboardState,
     PreferencesState prefsState,
   ) {
-    // If user layout is enabled
-    if (prefsState.useUserLayout && prefsState.defaultUserLayout != null) {
-      return keyboardState.layout.name == prefsState.defaultUserLayout!.name;
-    }
-
-    // If no user layout, check against initial layout
-    if (prefsState.initialKeyboardLayout != null) {
-      return keyboardState.layout.name ==
-          prefsState.initialKeyboardLayout!.name;
-    }
-
-    // Default to true if no specific layout is configured
-    return true;
+    return prefsState.isOnDefaultLayer(keyboardState.layout);
   }
 
   /// Clears all active triggers

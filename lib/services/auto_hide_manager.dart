@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:overkeys/providers/app_state_provider.dart';
+import 'package:overkeys/providers/keyboard_provider.dart';
 import 'package:overkeys/providers/preferences_provider.dart';
 
 /// Service for managing auto-hide functionality and overlay status messages
@@ -16,19 +17,32 @@ class AutoHideManager {
   static const Duration _overlayDuration = Duration(milliseconds: 1000);
   static const Duration _mouseCheckInterval = Duration(milliseconds: 500);
 
-  /// Flag to track if auto-hide was active before moving the window
-  bool autoHideBeforeMove = false;
-
   /// Resets the auto-hide timer based on user preferences
   void resetAutoHideTimer(WidgetRef ref) {
     final prefsState = ref.read(preferencesProvider);
     if (!prefsState.autoHideEnabled) return;
+
+    // Check if we're on the default layer
+    final isOnDefault = _isOnDefaultLayer(ref);
+
+    if (!isOnDefault) {
+      // If not on default layer, cancel any existing timer
+      _autoHideTimer?.cancel();
+      return;
+    }
 
     _autoHideTimer?.cancel();
     _autoHideTimer = Timer(
       Duration(milliseconds: (prefsState.autoHideDuration * 1000).round()),
       () => handleAutoHide(ref),
     );
+  }
+
+  /// Checks if the current layer is the default layer
+  bool _isOnDefaultLayer(WidgetRef ref) {
+    final keyboardState = ref.read(keyboardProvider);
+    final prefsState = ref.read(preferencesProvider);
+    return prefsState.isOnDefaultLayer(keyboardState.layout);
   }
 
   void handleAutoHide(WidgetRef ref) {

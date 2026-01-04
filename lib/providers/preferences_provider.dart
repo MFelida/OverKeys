@@ -15,13 +15,69 @@ class PreferencesState {
   final double autoHideDuration;
   final double opacity;
 
-  // Keyboard layout settings
-  final KeyboardLayout? initialKeyboardLayout;
-  final KeyboardLayout? defaultUserLayout;
-  final KeyboardLayout? altLayout;
+  // Keyboard layout settings (stored as names, accessed via getters)
+  final String? initialKeyboardLayoutName;
+  final String? defaultUserLayoutName;
+  final String? altLayoutName;
   final bool useUserLayout;
   final bool showAltLayout;
   final bool use6ColLayout;
+
+  /// Checks if the current layer is the default layer
+  bool isOnDefaultLayer(KeyboardLayout currentLayout) {
+    // If user layout or kanata is enabled with a default layout configured
+    if ((useUserLayout || kanataEnabled) && defaultUserLayout != null) {
+      return currentLayout.name == defaultUserLayout!.name;
+    }
+
+    // If no user layout, check against initial layout
+    if (initialKeyboardLayout != null) {
+      return currentLayout.name == initialKeyboardLayout!.name;
+    }
+
+    // Default to true if no specific layout is configured
+    return true;
+  }
+
+  // Getters to retrieve KeyboardLayout objects from names
+  KeyboardLayout? get initialKeyboardLayout {
+    if (initialKeyboardLayoutName == null) return null;
+
+    try {
+      return userLayers.firstWhere((l) => l.name == initialKeyboardLayoutName);
+    } catch (_) {
+      return availableLayouts.firstWhere(
+        (l) => l.name == initialKeyboardLayoutName,
+        orElse: () => qwerty,
+      );
+    }
+  }
+
+  KeyboardLayout? get defaultUserLayout {
+    if (defaultUserLayoutName == null) return null;
+
+    try {
+      return userLayers.firstWhere((l) => l.name == defaultUserLayoutName);
+    } catch (_) {
+      return availableLayouts.firstWhere(
+        (l) => l.name == defaultUserLayoutName,
+        orElse: () => qwerty,
+      );
+    }
+  }
+
+  KeyboardLayout? get altLayout {
+    if (altLayoutName == null) return null;
+
+    try {
+      return userLayers.firstWhere((l) => l.name == altLayoutName);
+    } catch (_) {
+      return availableLayouts.firstWhere(
+        (l) => l.name == altLayoutName,
+        orElse: () => qwerty,
+      );
+    }
+  }
 
   // Custom font settings
   final bool customFontEnabled;
@@ -46,9 +102,9 @@ class PreferencesState {
     this.reactiveShiftEnabled = true,
     this.autoHideDuration = 0.5,
     this.opacity = 0.5,
-    this.initialKeyboardLayout,
-    this.defaultUserLayout,
-    this.altLayout,
+    this.initialKeyboardLayoutName,
+    this.defaultUserLayoutName,
+    this.altLayoutName,
     this.useUserLayout = false,
     this.showAltLayout = false,
     this.use6ColLayout = false,
@@ -71,9 +127,9 @@ class PreferencesState {
     bool? reactiveShiftEnabled,
     double? autoHideDuration,
     double? opacity,
-    KeyboardLayout? initialKeyboardLayout,
-    KeyboardLayout? defaultUserLayout,
-    KeyboardLayout? altLayout,
+    String? initialKeyboardLayoutName,
+    String? defaultUserLayoutName,
+    String? altLayoutName,
     bool? useUserLayout,
     bool? showAltLayout,
     bool? use6ColLayout,
@@ -95,10 +151,11 @@ class PreferencesState {
       reactiveShiftEnabled: reactiveShiftEnabled ?? this.reactiveShiftEnabled,
       autoHideDuration: autoHideDuration ?? this.autoHideDuration,
       opacity: opacity ?? this.opacity,
-      initialKeyboardLayout:
-          initialKeyboardLayout ?? this.initialKeyboardLayout,
-      defaultUserLayout: defaultUserLayout ?? this.defaultUserLayout,
-      altLayout: altLayout ?? this.altLayout,
+      initialKeyboardLayoutName:
+          initialKeyboardLayoutName ?? this.initialKeyboardLayoutName,
+      defaultUserLayoutName:
+          defaultUserLayoutName ?? this.defaultUserLayoutName,
+      altLayoutName: altLayoutName ?? this.altLayoutName,
       useUserLayout: useUserLayout ?? this.useUserLayout,
       showAltLayout: showAltLayout ?? this.showAltLayout,
       use6ColLayout: use6ColLayout ?? this.use6ColLayout,
@@ -128,9 +185,9 @@ class PreferencesState {
       'reactiveShiftEnabled': reactiveShiftEnabled,
       'autoHideDuration': autoHideDuration,
       'opacity': opacity,
-      'initialKeyboardLayoutName': initialKeyboardLayout?.name,
-      'defaultUserLayoutName': defaultUserLayout?.name,
-      'altLayoutName': altLayout?.name,
+      'initialKeyboardLayoutName': initialKeyboardLayoutName,
+      'defaultUserLayoutName': defaultUserLayoutName,
+      'altLayoutName': altLayoutName,
       'useUserLayout': useUserLayout,
       'showAltLayout': showAltLayout,
       'use6ColLayout': use6ColLayout,
@@ -150,30 +207,6 @@ class PreferencesState {
     // These fields are loaded separately from the user's config file (config.json)
     // by the ConfigService and injected into the state after preferences are loaded.
     // This maintains separation between app preferences and user-defined layouts.
-    final initialLayoutName = json['initialKeyboardLayoutName'] as String?;
-    final initialLayout = initialLayoutName != null
-        ? availableLayouts.firstWhere(
-            (l) => l.name == initialLayoutName,
-            orElse: () => qwerty,
-          )
-        : null;
-
-    final defaultLayoutName = json['defaultUserLayoutName'] as String?;
-    final defaultLayout = defaultLayoutName != null
-        ? availableLayouts.firstWhere(
-            (l) => l.name == defaultLayoutName,
-            orElse: () => qwerty,
-          )
-        : null;
-
-    final altLayoutName = json['altLayoutName'] as String?;
-    final altLayout = altLayoutName != null
-        ? availableLayouts.firstWhere(
-            (l) => l.name == altLayoutName,
-            orElse: () => qwerty,
-          )
-        : null;
-
     return PreferencesState(
       launchAtStartup: json['launchAtStartup'] as bool? ?? false,
       hideAtStartup: json['hideAtStartup'] as bool? ?? false,
@@ -181,9 +214,9 @@ class PreferencesState {
       reactiveShiftEnabled: json['reactiveShiftEnabled'] as bool? ?? true,
       autoHideDuration: (json['autoHideDuration'] as num?)?.toDouble() ?? 0.5,
       opacity: (json['opacity'] as num?)?.toDouble() ?? 0.5,
-      initialKeyboardLayout: initialLayout,
-      defaultUserLayout: defaultLayout,
-      altLayout: altLayout,
+      initialKeyboardLayoutName: json['initialKeyboardLayoutName'] as String?,
+      defaultUserLayoutName: json['defaultUserLayoutName'] as String?,
+      altLayoutName: json['altLayoutName'] as String?,
       useUserLayout: json['useUserLayout'] as bool? ?? false,
       showAltLayout: json['showAltLayout'] as bool? ?? false,
       use6ColLayout: json['use6ColLayout'] as bool? ?? false,
@@ -231,16 +264,16 @@ class PreferencesNotifier extends _$PreferencesNotifier {
     state = state.copyWith(opacity: value);
   }
 
-  void updateInitialKeyboardLayout(KeyboardLayout? layout) {
-    state = state.copyWith(initialKeyboardLayout: layout);
+  void updateInitialKeyboardLayout(String? layoutName) {
+    state = state.copyWith(initialKeyboardLayoutName: layoutName);
   }
 
-  void updateDefaultUserLayout(KeyboardLayout? layout) {
-    state = state.copyWith(defaultUserLayout: layout);
+  void updateDefaultUserLayout(String? layoutName) {
+    state = state.copyWith(defaultUserLayoutName: layoutName);
   }
 
-  void updateAltLayout(KeyboardLayout? layout) {
-    state = state.copyWith(altLayout: layout);
+  void updateAltLayout(String? layoutName) {
+    state = state.copyWith(altLayoutName: layoutName);
   }
 
   void updateUseUserLayout(bool value) {
