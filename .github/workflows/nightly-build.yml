@@ -152,7 +152,10 @@ jobs:
 
           if ($prs.Count -eq 0) {
             Write-Host "⚠️ No open release-please PR found, using empty changelog"
-            echo "CHANGELOG=" >> $env:GITHUB_OUTPUT
+            $EOF = "EOF_CHANGELOG_$([System.Guid]::NewGuid().ToString())"
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "CHANGELOG<<$EOF"
+            Add-Content -Path $env:GITHUB_OUTPUT -Value ""
+            Add-Content -Path $env:GITHUB_OUTPUT -Value $EOF
             exit 0
           }
 
@@ -177,9 +180,11 @@ jobs:
           }
 
 
-          # Save to environment variable
-          $changelog | Out-File -FilePath "${{ runner.temp }}\changelog.txt" -Encoding UTF8
-          echo "CHANGELOG=$(Get-Content -Path '${{ runner.temp }}\changelog.txt' -Raw)" >> $env:GITHUB_OUTPUT
+          # Save to environment variable using EOF delimiter for multiline content with special characters
+          $EOF = "EOF_CHANGELOG_$([System.Guid]::NewGuid().ToString())"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "CHANGELOG<<$EOF"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value $changelog
+          Add-Content -Path $env:GITHUB_OUTPUT -Value $EOF
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
