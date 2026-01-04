@@ -143,7 +143,7 @@ jobs:
           # Find the latest release-please PR
           $prs = gh pr list `
             --repo ${{ github.repository }} `
-            --author "release-please[bot]" `
+            --author "app/github-actions" `
             --state open `
             --json number,body `
             --limit 1
