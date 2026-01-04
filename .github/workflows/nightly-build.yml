@@ -141,12 +141,14 @@ jobs:
         id: changelog
         run: |
           # Find the latest release-please PR
-          $prs = gh pr list `
-            --repo ${{ github.repository }} `
-            --author "app/github-actions" `
-            --state open `
-            --json number,body `
-            --limit 1
+          $prs = @(
+            (gh pr list `
+              --repo ${{ github.repository }} `
+              --author "app/github-actions" `
+              --state open `
+              --json number,body `
+              --limit 1) | ConvertFrom-Json
+          )
 
           if ($prs.Count -eq 0) {
             Write-Host "⚠️ No open release-please PR found, using empty changelog"
@@ -158,16 +160,24 @@ jobs:
           $prNumber = $pr.number
           $body = $pr.body
 
+          Write-Host "ℹ️ Found release-please PR #$prNumber"
+          Write-Host "🔍 Extracting changelog from PR body..."
+          Write-Host $body
+
           # Extract changelog content (everything after "🤖 New release prepared" marker)
-          if ($body -match '🤖 New release prepared\s*---\s*(.+)') {
+          if ($body -match '(?s)---\s*\n\s*\n##\s*\[.*?\]\(.*?\)\s*\(.*?\)\s*\n(.+)---\s*\nThis PR was generated') {
             $changelog = $matches[1].Trim()
+            Write-Host "✅ Changelog extracted successfully"
+            # Replace version number in changelog header with nightly version
+            $nightlyVersion = "${{ steps.version.outputs.VERSION }}"
+            $changelog = $changelog -replace '##\s*\[[\d\.]+\]\(https://github\.com/[^/]+/[^/]+/compare/v[\d\.]+(\.\.\.v)?[\d\.]+\)\s*\(\d{4}-\d{2}-\d{2}\)', "## [$nightlyVersion] ($((Get-Date).ToString('yyyy-MM-dd')))"
+            Write-Host "✅ Updated changelog version to $nightlyVersion"
+            Write-Host "$changelog"
           } else {
             Write-Host "⚠️ Could not extract changelog from PR #$prNumber"
             $changelog = $body
           }
 
-          # Remove the Release Please footer
-          $changelog = $changelog -replace '\s*---\s*This PR was generated with.*$', ''
 
           # Save to environment variable
           $changelog | Out-File -FilePath "${{ runner.temp }}\changelog.txt" -Encoding UTF8
