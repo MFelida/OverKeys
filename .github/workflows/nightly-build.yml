@@ -3,6 +3,12 @@ name: Nightly & Pre-release Builds
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version number (e.g., v0.3.3-nightly.20260104) for manual testing"
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -12,6 +18,7 @@ jobs:
   # Detect if commit is a feat or fix to trigger nightly build
   detect-commit-type:
     runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_dispatch'
     outputs:
       is_feature_or_fix: ${{ steps.check.outputs.is_feature_or_fix }}
       commit_type: ${{ steps.check.outputs.commit_type }}
@@ -51,7 +58,10 @@ jobs:
   # Build nightly installers
   build-nightly:
     needs: detect-commit-type
-    if: needs.detect-commit-type.outputs.is_feature_or_fix == 'true'
+    if: |
+      always() && 
+      (github.event_name == 'workflow_dispatch' || 
+       needs.detect-commit-type.outputs.is_feature_or_fix == 'true')
     runs-on: windows-latest
     timeout-minutes: 30
     steps:
@@ -61,24 +71,30 @@ jobs:
       - name: Generate nightly version
         id: version
         run: |
-          # Get current date
-          $date = Get-Date -Format "yyyyMMdd"
-
-          # Read base version from pubspec.yaml (e.g. 0.3.3)
-          $pubspec = Get-Content -Path "pubspec.yaml" -Raw
-          if ($pubspec -match 'version:\s*([0-9]+\.[0-9]+\.[0-9]+)') {
-              $baseVersion = $matches[1]
+          # Check if this is a manual workflow dispatch
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+              $version = "${{ inputs.version }}"
+              Write-Host "📌 Using manual version: $version"
           } else {
-              Write-Error "Unable to read base version from pubspec.yaml"
-              exit 1
+              # Get current date
+              $date = Get-Date -Format "yyyyMMdd"
+
+              # Read base version from pubspec.yaml (e.g. 0.3.3)
+              $pubspec = Get-Content -Path "pubspec.yaml" -Raw
+              if ($pubspec -match 'version:\s*([0-9]+\.[0-9]+\.[0-9]+)') {
+                  $baseVersion = $matches[1]
+              } else {
+                  Write-Error "Unable to read base version from pubspec.yaml"
+                  exit 1
+              }
+
+              # Create version: v0.3.3-nightly.20260102
+              $version = "v$baseVersion-nightly.$date"
+              Write-Host "📌 Generated nightly version: $version"
           }
 
-          # Create version: v0.3.3-nightly.20260102
-          $version = "v$baseVersion-nightly.$date"
           echo "VERSION=$version" >> $env:GITHUB_OUTPUT
           echo "BUILD_NAME=OverKeys-$version" >> $env:GITHUB_OUTPUT
-
-          Write-Host "📌 Generated nightly version: $version"
         shell: pwsh
 
       - name: Setup Flutter
