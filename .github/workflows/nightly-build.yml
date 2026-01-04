@@ -162,7 +162,6 @@ jobs:
 
           Write-Host "ℹ️ Found release-please PR #$prNumber"
           Write-Host "🔍 Extracting changelog from PR body..."
-          Write-Host $body
 
           # Extract changelog content (everything after "🤖 New release prepared" marker)
           if ($body -match '(?s)---\s*\n\s*\n##\s*\[.*?\]\(.*?\)\s*\(.*?\)\s*\n(.+)---\s*\nThis PR was generated') {
@@ -172,7 +171,6 @@ jobs:
             $nightlyVersion = "${{ steps.version.outputs.VERSION }}"
             $changelog = $changelog -replace '##\s*\[[\d\.]+\]\(https://github\.com/[^/]+/[^/]+/compare/v[\d\.]+(\.\.\.v)?[\d\.]+\)\s*\(\d{4}-\d{2}-\d{2}\)', "## [$nightlyVersion] ($((Get-Date).ToString('yyyy-MM-dd')))"
             Write-Host "✅ Updated changelog version to $nightlyVersion"
-            Write-Host "$changelog"
           } else {
             Write-Host "⚠️ Could not extract changelog from PR #$prNumber"
             $changelog = $body
