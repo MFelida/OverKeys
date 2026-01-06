@@ -443,7 +443,8 @@ class MethodCallHandler {
             kanataService.disconnect();
           }
           prefsNotifier.updateUseUserLayout(useUserLayout);
-          loadUserLayout();
+          // loadUserLayout();
+          loadAllConfiguration();
         } else {
           prefsNotifier.updateUseUserLayout(useUserLayout);
           // Restore the layout that was active before user layout was enabled
