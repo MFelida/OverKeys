@@ -240,7 +240,7 @@ class KeyboardState {
       'keyShadowOffsetY': keyShadowOffsetY,
       'fontFamily': fontFamily,
       'initialFontFamily': initialFontFamily,
-      'fontWeightIndex': fontWeight.index,
+      'fontWeightIndex': fontWeight.value,
       'keyFontSize': keyFontSize,
       'spaceFontSize': spaceFontSize,
       'markerOffset': markerOffset,
@@ -273,6 +273,32 @@ class KeyboardState {
       'showAltLayout': showAltLayout,
       'customAliases': customAliases,
     };
+  }
+
+  /// Converts a FontWeight value (100, 200, etc.) to a FontWeight enum
+  static FontWeight fontWeightFromValue(int value) {
+    switch (value) {
+      case 100:
+        return FontWeight.w100;
+      case 200:
+        return FontWeight.w200;
+      case 300:
+        return FontWeight.w300;
+      case 400:
+        return FontWeight.w400;
+      case 500:
+        return FontWeight.w500;
+      case 600:
+        return FontWeight.w600;
+      case 700:
+        return FontWeight.w700;
+      case 800:
+        return FontWeight.w800;
+      case 900:
+        return FontWeight.w900;
+      default:
+        return FontWeight.w500;
+    }
   }
 
   factory KeyboardState.fromJson(Map<String, dynamic> json) {
@@ -309,7 +335,7 @@ class KeyboardState {
       keyShadowOffsetY: (json['keyShadowOffsetY'] as num?)?.toDouble() ?? 2,
       fontFamily: json['fontFamily'] as String? ?? 'DM Mono',
       initialFontFamily: json['initialFontFamily'] as String?,
-      fontWeight: FontWeight.values[json['fontWeightIndex'] as int? ?? 4],
+      fontWeight: fontWeightFromValue(json['fontWeightIndex'] as int? ?? 500),
       keyFontSize: (json['keyFontSize'] as num?)?.toDouble() ?? 22,
       spaceFontSize: (json['spaceFontSize'] as num?)?.toDouble() ?? 21,
       markerOffset: (json['markerOffset'] as num?)?.toDouble() ?? 10,

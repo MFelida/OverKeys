@@ -139,7 +139,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
     if (value is Color) {
       value = value.toARGB32();
     } else if (value is FontWeight) {
-      value = value.index;
+      value = value.value;
     } else if (value is HotKey) {
       value = jsonEncode(value.toJson());
     }

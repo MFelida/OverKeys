@@ -163,8 +163,9 @@ class MethodCallHandler {
         }
 
       case 'updateFontWeight':
-        final fontWeightIndex = _safeArgument<int>(call.arguments, 3);
-        keyboardNotifier.updateFontWeight(FontWeight.values[fontWeightIndex]);
+        final fontWeightValue = _safeArgument<int>(call.arguments, 500);
+        keyboardNotifier.updateFontWeight(
+            KeyboardState.fontWeightFromValue(fontWeightValue));
 
       case 'updateKeyFontSize':
         final keyFontSize = _safeArgument<double>(call.arguments, 28.0);
