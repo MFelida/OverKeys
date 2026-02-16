@@ -195,14 +195,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen>
           onKeyEvent: (KeyEvent keyEvent) async {
             if (keyEvent is KeyDownEvent &&
                 keyEvent.logicalKey == LogicalKeyboardKey.escape) {
-              final controllers = await WindowController.getAll();
-              for (final controller in controllers) {
-                if (controller.arguments.isEmpty ||
-                    controller.arguments == 'main') {
-                  await controller.invokeMethod('closePreferencesWindow');
-                  break;
-                }
-              }
+              await widget.windowController.hide();
             }
           },
           child: Scaffold(
