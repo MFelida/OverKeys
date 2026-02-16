@@ -371,22 +371,31 @@ class _MainAppState extends ConsumerState<MainApp>
   @override
   void onTrayMenuItemClick(MenuItem menuItem) {
     if (menuItem.key == 'exit') {
-      WindowController.getAll().then((controllers) async {
-        for (final controller in controllers) {
-          await controller.close();
-        }
-        await windowManager.close();
-        exit(0);
-      }).catchError((error) {
-        if (kDebugMode) {
-          print('Error closing windows: $error');
-        }
-        windowManager.close();
-        exit(0);
-      });
+      _closePreferencesThenExit();
       return;
     }
     _setupTray();
+  }
+
+  Future<void> _closePreferencesThenExit() async {
+    try {
+      final controllers = await WindowController.getAll();
+      for (final controller in controllers) {
+        if (controller.arguments == 'preferences') {
+          await controller.close();
+        }
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print('Error closing preferences window: $error');
+      }
+    }
+
+    try {
+      await windowManager.close();
+    } finally {
+      exit(0);
+    }
   }
 
   @override
@@ -463,11 +472,6 @@ class _MainAppState extends ConsumerState<MainApp>
         final showTopRow = call.arguments as bool;
         ref.read(keyboardProvider.notifier).updateShowTopRow(showTopRow);
         _adjustWindowSize();
-        return null;
-      }
-
-      if (call.method == 'closePreferencesWindow') {
-        await windowController.close();
         return null;
       }
 
