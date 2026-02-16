@@ -440,6 +440,7 @@ class _MainAppState extends ConsumerState<MainApp>
       for (var controller in controllers) {
         if (controller.arguments == 'preferences') {
           await controller.show();
+          await controller.invokeMethod('requestFocus');
           return;
         }
       }
