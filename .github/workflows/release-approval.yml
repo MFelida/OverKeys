@@ -3,13 +3,37 @@ name: Release Approval & Auto-Publish
 on:
   pull_request:
     branches: [main]
-    types: [labeled, unlabeled]
+    types: [labeled, unlabeled, synchronize]
 
 permissions:
   contents: write
   pull-requests: write
 
 jobs:
+  # Diagnostic job to help debug workflow conditions
+  debug-workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show workflow context
+        run: |
+          echo "========================================="
+          echo "WORKFLOW DIAGNOSTIC INFO"
+          echo "========================================="
+          echo "Event: ${{ github.event_name }}"
+          echo "Action: ${{ github.event.action }}"
+          echo "PR #: ${{ github.event.pull_request.number }}"
+          echo "PR Title: ${{ github.event.pull_request.title }}"
+          echo "PR Author: ${{ github.event.pull_request.user.login }}"
+          echo ""
+          echo "Current Labels:"
+          echo "${{ toJSON(github.event.pull_request.labels.*.name) }}"
+          echo ""
+          echo "Condition checks:"
+          echo "- Title starts with 'chore: release': ${{ startsWith(github.event.pull_request.title, 'chore: release') }}"
+          echo "- Has 'approved-for-release' label: ${{ contains(github.event.pull_request.labels.*.name, 'approved-for-release') }}"
+          echo "========================================="
+        shell: bash
+
   # Monitor release-please PR for approval
   monitor-release-pr:
     runs-on: ubuntu-latest
@@ -110,10 +134,14 @@ jobs:
     steps:
       - name: Debug Info
         run: |
+          echo "========================================"
+          echo "DEBUG: Auto-publish-release job started"
+          echo "========================================"
           echo "🔍 PR Author: ${{ github.event.pull_request.user.login }}"
           echo "📝 PR Title: ${{ github.event.pull_request.title }}"
           echo "🏷️ PR Labels: ${{ join(github.event.pull_request.labels.*.name, ', ') }}"
-          echo "✅ Approved for release: ${{ contains(github.event.pull_request.labels.*.name, 'approved-for-release') }}"
+          echo "✅ Has approved-for-release label: ${{ contains(github.event.pull_request.labels.*.name, 'approved-for-release') }}"
+          echo "📋 Event action: ${{ github.event.action }}"
         shell: bash
 
       - name: Checkout code
@@ -139,6 +167,11 @@ jobs:
                 return;
               }
 
+              console.log('🔄 Attempting to merge PR...');
+              console.log(`   Merge method: squash`);
+              console.log(`   PR mergeable: ${pr.data.mergeable}`);
+              console.log(`   PR mergeable_state: ${pr.data.mergeable_state}`);
+              
               // Merge the PR
               await github.rest.pulls.merge({
                 owner: context.repo.owner,
