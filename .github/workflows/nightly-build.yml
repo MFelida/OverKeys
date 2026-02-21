@@ -1,8 +1,9 @@
 name: Nightly & Pre-release Builds
 
 on:
-  push:
-    branches: [main]
+  schedule:
+    # Run every day at 12:00am GMT+8 (16:00 UTC)
+    - cron: "0 16 * * *"
   workflow_dispatch:
     inputs:
       version:
@@ -15,53 +16,63 @@ permissions:
   pull-requests: read
 
 jobs:
-  # Detect if commit is a feat or fix to trigger nightly build
-  detect-commit-type:
+  # Detect if there are new pushes to main branch AND if last commit is feat or fix
+  detect-nightly-trigger:
     runs-on: ubuntu-latest
-    if: github.event_name != 'workflow_dispatch'
     outputs:
-      is_feature_or_fix: ${{ steps.check.outputs.is_feature_or_fix }}
+      should_run_nightly: ${{ steps.check.outputs.should_run_nightly }}
       commit_type: ${{ steps.check.outputs.commit_type }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 2
 
-      - name: Detect commit type
+      - name: Check for new pushes and commit type
         id: check
         run: |
-          # Get the commit message of HEAD
+          # Get the last commit time
+          LAST_COMMIT_TIME=$(git log -1 --pretty=%ct)
+          # Get the current time
+          CURRENT_TIME=$(date +%s)
+          # Get the time since last commit (in hours)
+          HOURS_SINCE_COMMIT=$(( (CURRENT_TIME - LAST_COMMIT_TIME) / 3600 ))
+
+          # Get the last commit message
           COMMIT_MSG=$(git log -1 --pretty=%B)
           echo "Last commit message: $COMMIT_MSG"
 
           # Skip if it's a release commit or merge commit
           if [[ "$COMMIT_MSG" == "chore: release"* ]] || [[ "$COMMIT_MSG" == "Merge"* ]]; then
-            echo "is_feature_or_fix=false" >> $GITHUB_OUTPUT
+            echo "should_run_nightly=false" >> $GITHUB_OUTPUT
             exit 0
           fi
 
           # Check if commit starts with feat: or fix:
           if [[ "$COMMIT_MSG" == "feat:"* ]]; then
-            echo "is_feature_or_fix=true" >> $GITHUB_OUTPUT
-            echo "commit_type=feature" >> $GITHUB_OUTPUT
-            echo "✅ Detected feature commit - will build nightly"
+            COMMIT_TYPE="feature"
           elif [[ "$COMMIT_MSG" == "fix:"* ]]; then
-            echo "is_feature_or_fix=true" >> $GITHUB_OUTPUT
-            echo "commit_type=fix" >> $GITHUB_OUTPUT
-            echo "✅ Detected fix commit - will build nightly"
+            COMMIT_TYPE="fix"
           else
-            echo "is_feature_or_fix=false" >> $GITHUB_OUTPUT
-            echo "⏭️ Not a feature or fix commit - skipping nightly build"
+            COMMIT_TYPE="other"
+          fi
+
+          # Only run nightly if last commit is feat or fix AND was pushed within last 24 hours
+          if [ $HOURS_SINCE_COMMIT -le 24 ] && ([[ "$COMMIT_MSG" == "feat:"* ]] || [[ "$COMMIT_MSG" == "fix:"* ]]); then
+            echo "should_run_nightly=true" >> $GITHUB_OUTPUT
+            echo "commit_type=$COMMIT_TYPE" >> $GITHUB_OUTPUT
+          else
+            echo "should_run_nightly=false" >> $GITHUB_OUTPUT
+            echo "commit_type=$COMMIT_TYPE" >> $GITHUB_OUTPUT
           fi
 
   # Build nightly installers
   build-nightly:
-    needs: detect-commit-type
+    needs: detect-nightly-trigger
     if: |
       always() && 
       (github.event_name == 'workflow_dispatch' || 
-       needs.detect-commit-type.outputs.is_feature_or_fix == 'true')
+       needs.detect-nightly-trigger.outputs.should_run_nightly == 'true')
     runs-on: windows-latest
     timeout-minutes: 30
     steps:
