@@ -12,14 +12,20 @@ permissions:
 jobs:
   # Monitor release-please PR for approval
   monitor-release-pr:
-    if: |
-      github.event.pull_request.user.login == 'release-please[bot]' &&
-      startsWith(github.event.pull_request.title, 'chore: release')
     runs-on: ubuntu-latest
+    if: |
+      startsWith(github.event.pull_request.title, 'chore: release')
     outputs:
       is_release_pr: ${{ steps.check.outputs.is_release_pr }}
       version: ${{ steps.extract.outputs.version }}
     steps:
+      - name: Debug PR info
+        run: |
+          echo "PR Author: ${{ github.event.pull_request.user.login }}"
+          echo "PR Title: ${{ github.event.pull_request.title }}"
+          echo "PR Labels: ${{ join(github.event.pull_request.labels.*.name, ', ') }}"
+        shell: bash
+
       - name: Check if this is a release PR
         id: check
         run: |
@@ -97,12 +103,19 @@ jobs:
 
   # Auto-merge and publish when approved
   auto-publish-release:
-    needs: monitor-release-pr
     if: |
-      github.event.pull_request.user.login == 'release-please[bot]' &&
+      startsWith(github.event.pull_request.title, 'chore: release') &&
       contains(github.event.pull_request.labels.*.name, 'approved-for-release')
     runs-on: ubuntu-latest
     steps:
+      - name: Debug Info
+        run: |
+          echo "🔍 PR Author: ${{ github.event.pull_request.user.login }}"
+          echo "📝 PR Title: ${{ github.event.pull_request.title }}"
+          echo "🏷️ PR Labels: ${{ join(github.event.pull_request.labels.*.name, ', ') }}"
+          echo "✅ Approved for release: ${{ contains(github.event.pull_request.labels.*.name, 'approved-for-release') }}"
+        shell: bash
+
       - name: Checkout code
         uses: actions/checkout@v4
 
