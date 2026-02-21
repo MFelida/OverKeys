@@ -30,7 +30,7 @@ jobs:
           echo ""
           echo "Condition checks:"
           echo "- Title starts with 'chore: release': ${{ startsWith(github.event.pull_request.title, 'chore: release') }}"
-          echo "- Has 'approved-for-release' label: ${{ contains(github.event.pull_request.labels.*.name, 'approved-for-release') }}"
+          echo "- Has 'approve-for-release' label: ${{ contains(github.event.pull_request.labels.*.name, 'approve-for-release') }}"
           echo "========================================="
         shell: bash
 
@@ -91,7 +91,7 @@ jobs:
             ### Step 2: Approve for Publishing
             When you're ready to publish this release:
 
-            1. **Add the \`approved-for-release\` label** to this PR (or react with ✅)
+            1. **Add the \`approve-for-release\` label** to this PR (or react with ✅)
             2. A workflow will:
                - Merge this PR automatically
                - Create a GitHub Release (draft → published)
@@ -129,7 +129,7 @@ jobs:
   auto-publish-release:
     if: |
       startsWith(github.event.pull_request.title, 'chore: release') &&
-      contains(github.event.pull_request.labels.*.name, 'approved-for-release')
+      contains(github.event.pull_request.labels.*.name, 'approve-for-release')
     runs-on: ubuntu-latest
     steps:
       - name: Debug Info
@@ -140,7 +140,7 @@ jobs:
           echo "🔍 PR Author: ${{ github.event.pull_request.user.login }}"
           echo "📝 PR Title: ${{ github.event.pull_request.title }}"
           echo "🏷️ PR Labels: ${{ join(github.event.pull_request.labels.*.name, ', ') }}"
-          echo "✅ Has approved-for-release label: ${{ contains(github.event.pull_request.labels.*.name, 'approved-for-release') }}"
+          echo "✅ Has approve-for-release label: ${{ contains(github.event.pull_request.labels.*.name, 'approve-for-release') }}"
           echo "📋 Event action: ${{ github.event.action }}"
         shell: bash
 
