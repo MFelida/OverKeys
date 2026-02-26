@@ -4,13 +4,15 @@ class KeyboardLayout {
   final String? trigger;
   final String? type;
   final bool? foreign;
+  final bool? wide;
 
   const KeyboardLayout(
       {required this.name,
       required this.keys,
       this.trigger,
       this.type,
-      this.foreign});
+      this.foreign,
+      this.wide});
 }
 
 const qwerty = KeyboardLayout(
