@@ -151,13 +151,13 @@ jobs:
       - name: Fetch Release-Please PR Changelog
         id: changelog
         run: |
-          # Find the latest release-please PR
+          # Find the latest release-please PR (filter by title since it uses PAT)
           $prs = @(
             (gh pr list `
               --repo ${{ github.repository }} `
-              --author "app/github-actions" `
+              --search "chore: release in:title" `
               --state open `
-              --json number,body `
+              --json number,body,title `
               --limit 1) | ConvertFrom-Json
           )
 
