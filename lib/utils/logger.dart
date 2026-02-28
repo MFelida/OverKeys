@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:collection';
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 import 'package:desktop_multi_window/desktop_multi_window.dart';
@@ -58,9 +60,9 @@ class LogCapture {
   static final LogCapture _instance = LogCapture._internal();
   factory LogCapture() => _instance;
 
-  final List<LogEntry> _logs = [];
-  final List<LogEntry> _receivedLogs =
-      []; // For logs received from other windows
+  final ListQueue<LogEntry> _logs = ListQueue<LogEntry>();
+  final ListQueue<LogEntry> _receivedLogs =
+      ListQueue<LogEntry>(); // For logs received from other windows
   static const int _maxLogs =
       1000; // Keep last 1000 combined logs across both buffers
 
@@ -68,24 +70,39 @@ class LogCapture {
   List<LogEntry>? _cachedCombinedLogs;
   bool _isCacheValid = false;
 
+  // Revision counter to track changes even when log count stays the same
+  int _revision = 0;
+
+  // Stream controller for event-driven log updates
+  final StreamController<int> _revisionController =
+      StreamController<int>.broadcast();
+
+  /// Stream of revision updates for event-driven log monitoring
+  Stream<int> get revisionStream => _revisionController.stream;
+
   LogCapture._internal() {
-    Logger.root.level = kDebugMode ? Level.ALL : Level.INFO;
+    Logger.root.level = Level.ALL;
     Logger.root.onRecord.listen(_handleLogRecord);
   }
 
   void _trimLogsToLimit() {
-    while (_logs.length + _receivedLogs.length > _maxLogs) {
-      // Remove the oldest entry from either buffer
+    final totalLogs = _logs.length + _receivedLogs.length;
+    if (totalLogs <= _maxLogs) return;
+
+    final toRemove = totalLogs - _maxLogs;
+
+    // Remove oldest logs efficiently (O(1) per removal with ListQueue)
+    for (var i = 0; i < toRemove; i++) {
       if (_logs.isEmpty) {
-        _receivedLogs.removeAt(0);
+        _receivedLogs.removeFirst();
       } else if (_receivedLogs.isEmpty) {
-        _logs.removeAt(0);
+        _logs.removeFirst();
       } else {
-        // Both have entries, remove from the one with the older timestamp
+        // Remove from the buffer with the older timestamp
         if (_logs.first.timestamp.isBefore(_receivedLogs.first.timestamp)) {
-          _logs.removeAt(0);
+          _logs.removeFirst();
         } else {
-          _receivedLogs.removeAt(0);
+          _receivedLogs.removeFirst();
         }
       }
     }
@@ -104,6 +121,8 @@ class LogCapture {
     _logs.add(entry);
     _trimLogsToLimit();
     _isCacheValid = false;
+    _revision++;
+    _revisionController.add(_revision);
 
     // Print to console
     if (kDebugMode) {
@@ -155,15 +174,21 @@ class LogCapture {
         orElse: () => Level.INFO,
       );
 
-      // Check if this log already exists in _logs or _receivedLogs to avoid duplicates
-      // This happens when a window broadcasts to all windows including itself
-      // or when the same remote log is received multiple times
-      final isDuplicate = _logs.any((log) =>
+      // Check recent logs for duplicates (broadcasts typically arrive quickly)
+      // Only check last 50 logs instead of all logs for better performance
+      // Use skip() to avoid creating full list copies
+      final recentLogsToCheck =
+          _logs.length > 50 ? _logs.skip(_logs.length - 50) : _logs;
+      final recentReceivedToCheck = _receivedLogs.length > 50
+          ? _receivedLogs.skip(_receivedLogs.length - 50)
+          : _receivedLogs;
+
+      final isDuplicate = recentLogsToCheck.any((log) =>
               log.timestamp == parsedTimestamp &&
               log.loggerName == loggerName &&
               log.level == level &&
               log.message == message) ||
-          _receivedLogs.any((log) =>
+          recentReceivedToCheck.any((log) =>
               log.timestamp == parsedTimestamp &&
               log.loggerName == loggerName &&
               log.level == level &&
@@ -188,6 +213,8 @@ class LogCapture {
       _receivedLogs.add(entry);
       _trimLogsToLimit();
       _isCacheValid = false;
+      _revision++;
+      _revisionController.add(_revision);
     } catch (_) {
       // Silently ignore malformed log data
     }
@@ -208,10 +235,14 @@ class LogCapture {
 
   int get logCount => _logs.length + _receivedLogs.length;
 
+  int get revision => _revision;
+
   void clear() {
     _logs.clear();
     _receivedLogs.clear();
     _isCacheValid = false;
+    _revision++;
+    _revisionController.add(_revision);
   }
 }
 
