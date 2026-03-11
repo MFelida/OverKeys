@@ -184,7 +184,7 @@ OverKeys can be installed through several methods:
    - Download and run the latest [EXE installer](https://github.com/conventoangelo/OverKeys/releases/latest).
 
 3. **Portable Version**
-   - Downloade and extract the [portable ZIP file](https://github.com/conventoangelo/OverKeys/releases/latest)
+   - Download and extract the [portable ZIP file](https://github.com/conventoangelo/OverKeys/releases/latest)
 
 For detailed installation instructions, see the [Installation Guide](/docs/getting-started/installation.md).
 
@@ -221,44 +221,14 @@ Complete documentation for OverKeys is available in the [docs](docs/index.md) fo
 
 ## Contributing
 
-Contributions are what make the open-source community such an amazing place to learn and collaborate. Any contributions to **OverKeys** are greatly appreciated.
+Contributions are what make the open-source community such an amazing place to learn and collaborate. Any contributions to **OverKeys** are greatly appreciated. If you have suggestions for improvements, bug fixes, or new features, please feel free to open an issue or submit a pull request. For detailed contribution guidelines, see the [CONTRIBUTING.md](.github/CONTRIBUTING.md) file.
 
-1. Fork the Project.
-2. Create your Feature Branch (`git checkout -b feat/amazing-feature`).
-3. Commit your Changes (`git commit -m 'feat: add some amazing feature'`).
-4. Push to the Branch (`git push origin feat/amazing-feature`).
-5. Open a Pull Request.
-
-### Top contributors
-
-<a href="https://github.com/conventoangelo/OverKeys/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=conventoangelo/OverKeys" alt="contrib.rocks image" />
-</a>
-
-## Building from Source
-
-1. **Prerequisites**:
-
-   - Install [Flutter](https://flutter.dev/docs/get-started/install)
-   - Install [Git](https://git-scm.com/downloads/win)
-
-2. **Clone and Build**:
-
-   ```pwsh
-   git clone https://github.com/conventoangelo/OverKeys.git
-   cd OverKeys
-   flutter pub get
-   flutter run -d windows  # For testing
-   # OR
-   flutter build windows   # For release build
-   # Release executable is located at `build\windows\x64\runner\Release`
-   ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## License
 
-Distributed under the GPL-3.0 License. See `LICENSE` file for more information.
+Distributed under the GPL-3.0 License. See [`LICENSE`](LICENSE) file for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
