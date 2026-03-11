@@ -71,13 +71,13 @@
 
 ### ⚙️ CI/CD Pipeline
 
-* revamp cicd with nightly builds and approval gates ([8927470](https://github.com/conventoangelo/OverKeys/commit/8927470906c5dbb7410a289a1d85b150fc723119))
+* revamp CI/CD with nightly builds and approval gates ([8927470](https://github.com/conventoangelo/OverKeys/commit/8927470906c5dbb7410a289a1d85b150fc723119))
 * update permissions in build-release.yml and improve comment clarity in build_windows.ps1 ([97e3824](https://github.com/conventoangelo/OverKeys/commit/97e3824536f1f30e6af858c7391762cbccc53f1c))
 
 
 ### 🔨 Refactoring
 
-* use riverpod for state management ([#147](https://github.com/conventoangelo/OverKeys/issues/147)) ([f800916](https://github.com/conventoangelo/OverKeys/commit/f80091640e5616018bd7a7d882aefcb559ff9063))
+* use Riverpod for state management ([#147](https://github.com/conventoangelo/OverKeys/issues/147)) ([f800916](https://github.com/conventoangelo/OverKeys/commit/f80091640e5616018bd7a7d882aefcb559ff9063))
 
 ## [0.3.2](https://github.com/conventoangelo/OverKeys/compare/v0.3.1...v0.3.2) (2025-09-29)
 
@@ -332,7 +332,7 @@
 
 ### 🐛 Bug Fixes
 
-* auto-hide in prefs window now updates even when closed ([061485f](https://github.com/conventoangelo/OverKeys/commit/061485fcf862f4bc63402874261803bcd5336310))
+* auto-hide in preferences window now updates even when closed ([061485f](https://github.com/conventoangelo/OverKeys/commit/061485fcf862f4bc63402874261803bcd5336310))
 * force hide on tray icon click ([061485f](https://github.com/conventoangelo/OverKeys/commit/061485fcf862f4bc63402874261803bcd5336310))
 * force single-instance of app ([061485f](https://github.com/conventoangelo/OverKeys/commit/061485fcf862f4bc63402874261803bcd5336310))
 * force single-instance of preferences window ([061485f](https://github.com/conventoangelo/OverKeys/commit/061485fcf862f4bc63402874261803bcd5336310))
@@ -352,7 +352,7 @@
 
 * add `enableAdvancedSettings` setting check for initialization tasks ([55c7569](https://github.com/conventoangelo/OverKeys/commit/55c75699add2103c90dffac1cc12bd2f57c5403f))
 * correct user layout loading with Kanata and advanced settings ([55c7569](https://github.com/conventoangelo/OverKeys/commit/55c75699add2103c90dffac1cc12bd2f57c5403f))
-* lastOpactiy now uses opactiy value on app open ([5e11aba](https://github.com/conventoangelo/OverKeys/commit/5e11aba5d152320f7f1140d4fc12f17b981f2a83))
+* lastOpacity now uses opacity value on app open ([5e11aba](https://github.com/conventoangelo/OverKeys/commit/5e11aba5d152320f7f1140d4fc12f17b981f2a83))
 * remove delay of applying advanced settings on app open ([5e11aba](https://github.com/conventoangelo/OverKeys/commit/5e11aba5d152320f7f1140d4fc12f17b981f2a83))
 * show alt layout on startup only if advanced settings is on ([55c7569](https://github.com/conventoangelo/OverKeys/commit/55c75699add2103c90dffac1cc12bd2f57c5403f))
 * trigger hide timer on app  ([55c7569](https://github.com/conventoangelo/OverKeys/commit/55c75699add2103c90dffac1cc12bd2f57c5403f))
